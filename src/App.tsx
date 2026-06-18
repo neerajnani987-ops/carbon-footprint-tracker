@@ -17,6 +17,7 @@ const Quests = lazy(() => import('./pages/Challenges'));
 const AIAssistant = lazy(() => import('./pages/AIAssistant'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Settings = lazy(() => import('./pages/Settings'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Loading indicator component
 const PageLoader: React.FC = () => (
@@ -107,7 +108,7 @@ const App: React.FC = () => {
                           <Route path="assistant" element={<AIAssistant />} />
                           <Route path="analytics" element={<Analytics />} />
                           <Route path="settings" element={<Settings />} />
-                          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                          <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Layout>
                     </ProtectedRoute>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppState } from '../context/AppStateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { motion } from 'framer-motion';
 import {
   Bus,
   Zap,
@@ -156,7 +157,12 @@ const Tracker: React.FC = () => {
   }, [dailyLogs, todayStr, language]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto"
+    >
       {/* Logger form wrapper */}
       <form onSubmit={handleSubmit} className="flex-1 glass-card p-6 md:p-8 border border-white/5 flex flex-col gap-6">
         <div>
@@ -278,7 +284,7 @@ const Tracker: React.FC = () => {
         </div>
 
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -73,12 +73,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={toggleLanguage}
             className="p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 text-eco-muted hover:text-white"
             title="Switch Language"
+            aria-label={`Switch language to ${language === 'en' ? 'Telugu' : 'English'}`}
           >
             <Globe className="w-4 h-4" />
           </button>
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="p-2 bg-white/5 rounded-lg border border-white/10 text-white"
+            aria-label="Open navigation menu"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -109,18 +111,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </div>
                     <span className="font-outfit font-bold text-xl tracking-wider text-white">EcoTrace</span>
                   </div>
-                  <button onClick={() => setMobileMenuOpen(false)} className="p-1 hover:bg-white/10 rounded-lg">
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1 hover:bg-white/10 rounded-lg"
+                    aria-label="Close navigation menu"
+                  >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-col gap-2" aria-label="Mobile Navigation">
                   {navItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
                       <button
                         key={item.path}
                         onClick={() => handleNavClick(item.path)}
+                        aria-current={isActive ? 'page' : undefined}
                         className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all font-outfit ${
                           isActive
                             ? 'bg-eco-green text-white font-medium shadow-md shadow-eco-green/20'
@@ -170,13 +177,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
 
-          <nav className="flex flex-col gap-1.5">
+          <nav className="flex flex-col gap-1.5" aria-label="Desktop Sidebar Navigation">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <button
                   key={item.path}
                   onClick={() => handleNavClick(item.path)}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`flex items-center gap-3.5 w-full px-4.5 py-3 rounded-xl transition-all duration-300 font-outfit ${
                     isActive
                       ? 'bg-eco-green text-white font-semibold shadow-lg shadow-eco-green/15'
@@ -240,13 +248,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center gap-4">
             <button
               onClick={toggleLanguage}
+              aria-label={`Switch language to ${language === 'en' ? 'Telugu' : 'English'}`}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 text-eco-muted hover:text-white transition-all text-xs font-medium"
             >
               <Globe className="w-3.5 h-3.5" />
               <span>{language === 'en' ? 'Telugu' : 'English'}</span>
             </button>
 
-            <button className="p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 text-eco-muted hover:text-white transition-all relative">
+            <button
+              aria-label="View notifications"
+              className="p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 text-eco-muted hover:text-white transition-all relative"
+            >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-eco-green rounded-full"></span>
             </button>
