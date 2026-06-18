@@ -549,7 +549,7 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-[10px] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p>© {new Date().getFullYear()} EcoTrace Inc. Built with love for global environmental conservation.</p>
           <div className="flex gap-4 font-semibold">
-            <span className="cursor-help hover:text-white">Privacy Policy</span>
+            <button onClick={() => navigate('/privacy')} className="hover:text-white transition-all cursor-pointer">Privacy Policy</button>
             <span className="cursor-help hover:text-white">Terms of Service</span>
           </div>
         </div>

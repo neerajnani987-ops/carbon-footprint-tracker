@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAppState } from '../context/AppStateContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../hooks/useAppState';
+import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
 import {
   Bus,

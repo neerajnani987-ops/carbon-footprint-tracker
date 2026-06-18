@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAppState } from '../context/AppStateContext';
-import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
+import { useAppState } from '../hooks/useAppState';
+import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Leaf, Sparkles, User, ArrowDown, HelpCircle, Info } from 'lucide-react';
 

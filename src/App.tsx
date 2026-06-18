@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { LanguageProvider } from './context/LanguageContext';
-import { AppStateProvider } from './context/AppStateContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { AppStateProvider } from './contexts/AppStateContext';
 import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy loaded pages
 const Landing = lazy(() => import('./pages/Landing'));
@@ -18,6 +20,7 @@ const AIAssistant = lazy(() => import('./pages/AIAssistant'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Settings = lazy(() => import('./pages/Settings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 // Loading indicator component
 const PageLoader: React.FC = () => (
@@ -59,9 +62,10 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
-      <LanguageProvider>
-        <AuthProvider>
+    <ErrorBoundary>
+      <HashRouter>
+        <LanguageProvider>
+          <AuthProvider>
           <AppStateProvider>
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -93,6 +97,7 @@ const App: React.FC = () => {
                     </PublicRoute>
                   }
                 />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
 
                 {/* Protected Dashboard Views */}
                 <Route
@@ -120,7 +125,8 @@ const App: React.FC = () => {
         </AuthProvider>
       </LanguageProvider>
     </HashRouter>
-  );
+  </ErrorBoundary>
+);
 };
 
 export default App;

@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Settings from '../pages/Settings';
-import { LanguageProvider } from '../context/LanguageContext';
-import { AuthProvider } from '../context/AuthContext';
-import { AppStateProvider } from '../context/AppStateContext';
+import { LanguageProvider } from '../contexts/LanguageContext';
+import { AuthProvider } from '../contexts/AuthContext';
+import { AppStateProvider } from '../contexts/AppStateContext';
 
 // Simple mocks to avoid window elements errors
 window.matchMedia = window.matchMedia || function() {

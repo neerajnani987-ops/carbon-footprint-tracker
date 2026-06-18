@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAppState } from '../context/AppStateContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../hooks/useAppState';
+import { useLanguage } from '../hooks/useLanguage';
 import {
   Compass,
   Zap,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppState } from '../context/AppStateContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../hooks/useAppState';
+import { useLanguage } from '../hooks/useLanguage';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Car,

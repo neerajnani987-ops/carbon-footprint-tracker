@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { useAppState } from '../context/AppStateContext';
+import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../hooks/useLanguage';
+import { useAppState } from '../hooks/useAppState';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Leaf,

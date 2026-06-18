@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useAppState } from '../context/AppStateContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useAppState } from '../hooks/useAppState';
+import { useLanguage } from '../hooks/useLanguage';
 import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

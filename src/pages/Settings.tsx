@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
-import { useAppState } from '../context/AppStateContext';
+import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
+import { useAppState } from '../hooks/useAppState';
 import {
   User,
   Globe,
