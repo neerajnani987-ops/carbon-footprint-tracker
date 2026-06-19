@@ -1,6 +1,15 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { AppStateData } from '../types';
 
 // Load keys from environment variables (with no hardcoded fallback values)
 const firebaseConfig = {
@@ -9,25 +18,41 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Toggle to determine whether we use actual Firebase or local simulated fallback
-export const isFirebaseConfigured = !!firebaseConfig.apiKey;
+export let isFirebaseConfigured = !!firebaseConfig.apiKey;
 
-export const app = isFirebaseConfigured
-  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
+export let app = isFirebaseConfigured
+  ? getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApp()
   : null;
 
-export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
-export const googleProvider = auth ? new GoogleAuthProvider() : null;
+export let auth = app ? getAuth(app) : null;
+export let db = app ? getFirestore(app) : null;
+export let googleProvider = auth ? new GoogleAuthProvider() : null;
+
+export const reinitializeFirebaseForTest = (apiKey: string) => {
+  isFirebaseConfigured = !!apiKey;
+  firebaseConfig.apiKey = apiKey;
+  app = isFirebaseConfigured
+    ? getApps().length === 0
+      ? initializeApp(firebaseConfig)
+      : getApp()
+    : null;
+  auth = app ? getAuth(app) : null;
+  db = app ? getFirestore(app) : null;
+  googleProvider = auth ? new GoogleAuthProvider() : null;
+};
+
 
 /**
  * Firestore CRUD helpers with safe LocalStorage fallbacks.
  * This guarantees strict data protection and zero network errors in environments without active keys.
  */
-export const saveUserData = async (userId: string, data: any) => {
+export const saveUserData = async (userId: string, data: AppStateData) => {
   if (isFirebaseConfigured && db) {
     try {
       const userRef = doc(db, 'users', userId);
@@ -65,4 +90,11 @@ export const getUserData = async (userId: string) => {
     return saved ? JSON.parse(saved) : null;
   }
 };
-export { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail };
+export {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+};

@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { streak, toasts, dismissToast } = useAppState();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -109,7 +109,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="p-2 bg-eco-green/10 rounded-lg">
                       <Leaf className="w-6 h-6 text-eco-green" />
                     </div>
-                    <span className="font-outfit font-bold text-xl tracking-wider text-white">EcoTrace</span>
+                    <span className="font-outfit font-bold text-xl tracking-wider text-white">
+                      EcoTrace
+                    </span>
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
@@ -146,7 +148,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex items-center gap-3 px-4 py-3 bg-eco-forest/35 border border-white/5 rounded-xl">
                   <Flame className="w-5 h-5 text-amber-500 animate-pulse" />
                   <div>
-                    <div className="text-white font-bold font-outfit">{streak} {t('settings.save')}</div>
+                    <div className="text-white font-bold font-outfit">
+                      {streak} {t('settings.save')}
+                    </div>
                     <div className="text-xs text-eco-muted">Day Streak</div>
                   </div>
                 </div>
@@ -167,13 +171,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 bg-eco-forest/20 backdrop-blur-xl border-r border-white/5 flex-col justify-between p-6 shrink-0 h-screen sticky top-0">
         <div>
-          <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer" onClick={() => navigate('/')}>
+          <div
+            className="flex items-center gap-3 mb-10 px-2 cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <div className="p-2 bg-eco-green/10 rounded-xl">
               <Leaf className="w-7 h-7 text-eco-green" />
             </div>
             <div>
-              <h1 className="font-outfit font-extrabold text-xl tracking-wider text-white">EcoTrace</h1>
-              <span className="text-[10px] uppercase tracking-widest text-eco-green font-bold">Carbon Compass</span>
+              <h1 className="font-outfit font-extrabold text-xl tracking-wider text-white">
+                EcoTrace
+              </h1>
+              <span className="text-[10px] uppercase tracking-widest text-eco-green font-bold">
+                Carbon Compass
+              </span>
             </div>
           </div>
 
@@ -214,7 +225,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {user?.name ? user.name[0].toUpperCase() : 'U'}
               </div>
               <div className="overflow-hidden">
-                <div className="text-white font-medium text-xs font-outfit truncate w-28">{user?.name || 'User'}</div>
+                <div className="text-white font-medium text-xs font-outfit truncate w-28">
+                  {user?.name || 'User'}
+                </div>
                 <div className="text-[10px] text-eco-muted truncate w-28">{user?.email || ''}</div>
               </div>
             </div>

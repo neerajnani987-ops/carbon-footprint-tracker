@@ -2,22 +2,81 @@ import React, { createContext, useContext, useState } from 'react';
 
 type Language = 'en' | 'te';
 
-type TranslationKeys = 
-  | 'app.title' | 'app.subtitle' | 'nav.dashboard' | 'nav.calculator' 
-  | 'nav.tracker' | 'nav.quests' | 'nav.assistant' | 'nav.analytics' | 'nav.settings' | 'nav.landing'
-  | 'header.greeting' | 'header.quickLog' | 'dashboard.annualFootprint' | 'dashboard.target'
-  | 'dashboard.statusCalc' | 'dashboard.statusNoCalc' | 'dashboard.totalSavings' | 'dashboard.savingsDesc'
-  | 'dashboard.activeQuests' | 'dashboard.questsDesc' | 'dashboard.unlockedBadges' | 'dashboard.badgesDesc'
-  | 'dashboard.treeOffset' | 'dashboard.treeDesc' | 'dashboard.emissionsBreakdown' | 'dashboard.savingsTrend'
-  | 'dashboard.chartPlaceholder' | 'dashboard.calcButton' | 'dashboard.logButton' | 'dashboard.ecoInsights'
-  | 'calc.title' | 'calc.desc' | 'calc.liveTicker' | 'calc.step1' | 'calc.step2' | 'calc.step3' | 'calc.step4'
-  | 'calc.vehicle' | 'calc.vehicleMiles' | 'calc.flightsShort' | 'calc.flightsLong' | 'calc.electric' | 'calc.gas'
-  | 'calc.cleanEnergy' | 'calc.diet' | 'calc.localFood' | 'calc.wasteBags' | 'calc.recycling'
-  | 'calc.back' | 'calc.next' | 'calc.save' | 'tracker.title' | 'tracker.desc' | 'tracker.todaySummary'
-  | 'tracker.co2Saved' | 'tracker.smartphoneEq' | 'tracker.tipTitle' | 'tracker.recentHistory' | 'tracker.emptyHistory'
-  | 'tracker.submit' | 'quests.title' | 'quests.desc' | 'quests.activeQuests' | 'quests.activeQuestsDesc'
-  | 'settings.title' | 'settings.profile' | 'settings.language' | 'settings.theme' | 'settings.notifications'
-  | 'settings.save' | 'assistant.title' | 'assistant.subtitle' | 'assistant.placeholder' | 'assistant.send';
+type TranslationKeys =
+  | 'app.title'
+  | 'app.subtitle'
+  | 'nav.dashboard'
+  | 'nav.calculator'
+  | 'nav.tracker'
+  | 'nav.quests'
+  | 'nav.assistant'
+  | 'nav.analytics'
+  | 'nav.settings'
+  | 'nav.landing'
+  | 'header.greeting'
+  | 'header.quickLog'
+  | 'dashboard.annualFootprint'
+  | 'dashboard.target'
+  | 'dashboard.statusCalc'
+  | 'dashboard.statusNoCalc'
+  | 'dashboard.totalSavings'
+  | 'dashboard.savingsDesc'
+  | 'dashboard.activeQuests'
+  | 'dashboard.questsDesc'
+  | 'dashboard.unlockedBadges'
+  | 'dashboard.badgesDesc'
+  | 'dashboard.treeOffset'
+  | 'dashboard.treeDesc'
+  | 'dashboard.emissionsBreakdown'
+  | 'dashboard.savingsTrend'
+  | 'dashboard.chartPlaceholder'
+  | 'dashboard.calcButton'
+  | 'dashboard.logButton'
+  | 'dashboard.ecoInsights'
+  | 'calc.title'
+  | 'calc.desc'
+  | 'calc.liveTicker'
+  | 'calc.step1'
+  | 'calc.step2'
+  | 'calc.step3'
+  | 'calc.step4'
+  | 'calc.vehicle'
+  | 'calc.vehicleMiles'
+  | 'calc.flightsShort'
+  | 'calc.flightsLong'
+  | 'calc.electric'
+  | 'calc.gas'
+  | 'calc.cleanEnergy'
+  | 'calc.diet'
+  | 'calc.localFood'
+  | 'calc.wasteBags'
+  | 'calc.recycling'
+  | 'calc.back'
+  | 'calc.next'
+  | 'calc.save'
+  | 'tracker.title'
+  | 'tracker.desc'
+  | 'tracker.todaySummary'
+  | 'tracker.co2Saved'
+  | 'tracker.smartphoneEq'
+  | 'tracker.tipTitle'
+  | 'tracker.recentHistory'
+  | 'tracker.emptyHistory'
+  | 'tracker.submit'
+  | 'quests.title'
+  | 'quests.desc'
+  | 'quests.activeQuests'
+  | 'quests.activeQuestsDesc'
+  | 'settings.title'
+  | 'settings.profile'
+  | 'settings.language'
+  | 'settings.theme'
+  | 'settings.notifications'
+  | 'settings.save'
+  | 'assistant.title'
+  | 'assistant.subtitle'
+  | 'assistant.placeholder'
+  | 'assistant.send';
 
 const translations: Record<Language, Record<TranslationKeys, string>> = {
   en: {
@@ -36,7 +95,8 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'dashboard.annualFootprint': 'Annual Footprint Projection',
     'dashboard.target': 'Target: 3.5 t',
     'dashboard.statusCalc': 'Based on your calculations. Nice work keeping track!',
-    'dashboard.statusNoCalc': 'Please complete the Footprint Calculator to estimate your projected annual footprint.',
+    'dashboard.statusNoCalc':
+      'Please complete the Footprint Calculator to estimate your projected annual footprint.',
     'dashboard.totalSavings': 'Total Savings Logged',
     'dashboard.savingsDesc': 'CO₂e emissions avoided',
     'dashboard.activeQuests': 'Active Challenges',
@@ -49,10 +109,11 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'dashboard.savingsTrend': 'Savings Over Time (Last 7 Days)',
     'dashboard.chartPlaceholder': 'Calculate your footprint or log actions to see data.',
     'dashboard.calcButton': 'Open Calculator',
-    'dashboard.logButton': 'Log Today\'s Actions',
+    'dashboard.logButton': "Log Today's Actions",
     'dashboard.ecoInsights': 'Eco-Insights & Recommendations',
     'calc.title': 'Annual Footprint Calculator',
-    'calc.desc': 'Estimate your annual greenhouse gas emissions using simple parameters from your regular habits.',
+    'calc.desc':
+      'Estimate your annual greenhouse gas emissions using simple parameters from your regular habits.',
     'calc.liveTicker': 'Live Calculation Projection:',
     'calc.step1': 'Transportation',
     'calc.step2': 'Home Energy',
@@ -73,18 +134,21 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'calc.next': 'Next Step',
     'calc.save': 'Save Results',
     'tracker.title': 'Daily Action Tracker',
-    'tracker.desc': 'Log the eco-friendly choices you made today to calculate carbon savings immediately.',
-    'tracker.todaySummary': 'Today\'s Summary',
+    'tracker.desc':
+      'Log the eco-friendly choices you made today to calculate carbon savings immediately.',
+    'tracker.todaySummary': "Today's Summary",
     'tracker.co2Saved': 'CO₂ Saved Today',
     'tracker.smartphoneEq': 'Equivalent to {charges} smartphone charges avoided.',
     'tracker.tipTitle': 'Eco Tip of the Day',
     'tracker.recentHistory': 'Recent Logging History',
     'tracker.emptyHistory': 'No logs recorded yet. Start tracking above!',
-    'tracker.submit': 'Submit Today\'s Log',
+    'tracker.submit': "Submit Today's Log",
     'quests.title': 'Achievements & Badges',
-    'quests.desc': 'Complete calculator activities, reach savings targets, and check daily goals to unlock these milestones.',
+    'quests.desc':
+      'Complete calculator activities, reach savings targets, and check daily goals to unlock these milestones.',
     'quests.activeQuests': 'Eco-Quests & Challenges',
-    'quests.activeQuestsDesc': 'Accept focused challenges to fast-track your emission reduction and form healthy daily habits.',
+    'quests.activeQuestsDesc':
+      'Accept focused challenges to fast-track your emission reduction and form healthy daily habits.',
     'settings.title': 'Profile & Settings',
     'settings.profile': 'Profile Information',
     'settings.language': 'Language Selection',
@@ -94,7 +158,7 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'assistant.title': 'AI Sustainability Assistant',
     'assistant.subtitle': 'Eco Assistant powered by AI',
     'assistant.placeholder': 'Ask me anything about reducing your carbon footprint...',
-    'assistant.send': 'Send'
+    'assistant.send': 'Send',
   },
   te: {
     'app.title': 'EcoTrace (ఈకోట్రేస్)',
@@ -112,7 +176,8 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'dashboard.annualFootprint': 'వార్షిక కార్బన్ ఉద్గారాల అంచనా',
     'dashboard.target': 'లక్ష్యం: 3.5 టన్నులు',
     'dashboard.statusCalc': 'మీ లెక్కింపుల ఆధారంగా. పర్యవేక్షిస్తున్నందుకు అభినందనలు!',
-    'dashboard.statusNoCalc': 'మీ వార్షిక కార్బన్ ఉద్గారాలను అంచనా వేయడానికి దయచేసి కార్బన్ కాలిక్యులేటర్ పూర్తి చేయండి.',
+    'dashboard.statusNoCalc':
+      'మీ వార్షిక కార్బన్ ఉద్గారాలను అంచనా వేయడానికి దయచేసి కార్బన్ కాలిక్యులేటర్ పూర్తి చేయండి.',
     'dashboard.totalSavings': 'మొత్తం ఆదా చేసిన కార్బన్',
     'dashboard.savingsDesc': 'నివారించబడిన CO₂ ఉద్గారాలు',
     'dashboard.activeQuests': 'క్రియాశీల సవాళ్లు',
@@ -123,12 +188,14 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'dashboard.treeDesc': '1 సంవత్సరం పాటు శోషించే చెట్లు',
     'dashboard.emissionsBreakdown': 'విభాగాల వారీగా ఉద్గారాల వివరాలు',
     'dashboard.savingsTrend': 'కాలక్రమేణా ఆదా (గత 7 రోజులు)',
-    'dashboard.chartPlaceholder': 'వివరాలను చూడటానికి కాలిక్యులేటర్‌ను పూర్తి చేయండి లేదా పనులను లాగ్ చేయండి.',
+    'dashboard.chartPlaceholder':
+      'వివరాలను చూడటానికి కాలిక్యులేటర్‌ను పూర్తి చేయండి లేదా పనులను లాగ్ చేయండి.',
     'dashboard.calcButton': 'కాలిక్యులేటర్ తెరవండి',
     'dashboard.logButton': 'ఈరోజు పనులను లాగ్ చేయండి',
     'dashboard.ecoInsights': 'పర్యావరణ సూచనలు & సిఫార్సులు',
     'calc.title': 'వార్షిక కార్బన్ ఉద్గారాల కాలిక్యులేటర్',
-    'calc.desc': 'మీ సాధారణ అలవాట్ల నుండి సాధారణ పారామితులను ఉపయోగించి మీ వార్షిక గ్రీన్‌హౌస్ వాయు ఉద్గారాలను అంచనా వేయండి.',
+    'calc.desc':
+      'మీ సాధారణ అలవాట్ల నుండి సాధారణ పారామితులను ఉపయోగించి మీ వార్షిక గ్రీన్‌హౌస్ వాయు ఉద్గారాలను అంచనా వేయండి.',
     'calc.liveTicker': 'లైవ్ లెక్కింపు అంచనా:',
     'calc.step1': 'రవాణా',
     'calc.step2': 'గృహ విద్యుత్',
@@ -149,7 +216,8 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'calc.next': 'తదుపరి దశ',
     'calc.save': 'ఫలితాలను సేవ్ చేయండి',
     'tracker.title': 'రోజువారీ పనుల ట్రాకర్',
-    'tracker.desc': 'కార్బన్ ఆదాను వెంటనే లెక్కించడానికి ఈరోజు మీరు చేసిన పర్యావరణ అనుకూల ఎంపికలను లాగ్ చేయండి.',
+    'tracker.desc':
+      'కార్బన్ ఆదాను వెంటనే లెక్కించడానికి ఈరోజు మీరు చేసిన పర్యావరణ అనుకూల ఎంపికలను లాగ్ చేయండి.',
     'tracker.todaySummary': 'ఈరోజు సారాంశం',
     'tracker.co2Saved': 'ఈరోజు ఆదా చేసిన CO₂',
     'tracker.smartphoneEq': 'ఇది {charges} స్మార్ట్‌ఫోన్ ఛార్జీలను నివారించడంతో సమానం.',
@@ -158,9 +226,11 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'tracker.emptyHistory': 'ఇంకా ఎటువంటి లాగ్‌లు నమోదు చేయబడలేదు. పైన ట్రాక్ చేయడం ప్రారంభించండి!',
     'tracker.submit': 'ఈరోజు లాగ్‌ను సమర్పించండి',
     'quests.title': 'సాధనలు & బ్యాడ్జ్‌లు',
-    'quests.desc': 'ఈ మైలురాళ్లను అన్‌లాక్ చేయడానికి కాలిక్యులేటర్ పనులను పూర్తి చేయండి, ఆదా లక్ష్యాలను చేరుకోండి మరియు రోజువారీ లక్ష్యాలను తనిఖీ చేయండి.',
+    'quests.desc':
+      'ఈ మైలురాళ్లను అన్‌లాక్ చేయడానికి కాలిక్యులేటర్ పనులను పూర్తి చేయండి, ఆదా లక్ష్యాలను చేరుకోండి మరియు రోజువారీ లక్ష్యాలను తనిఖీ చేయండి.',
     'quests.activeQuests': 'పర్యావరణ అన్వేషణలు & సవాళ్లు',
-    'quests.activeQuestsDesc': 'మీ ఉద్గారాల తగ్గింపును వేగవంతం చేయడానికి మరియు ఆరోగ్యకరమైన రోజువారీ అలవాట్లను ఏర్పరచుకోవడానికి నిర్దిష్ట సవాళ్లను అంగీకరించండి.',
+    'quests.activeQuestsDesc':
+      'మీ ఉద్గారాల తగ్గింపును వేగవంతం చేయడానికి మరియు ఆరోగ్యకరమైన రోజువారీ అలవాట్లను ఏర్పరచుకోవడానికి నిర్దిష్ట సవాళ్లను అంగీకరించండి.',
     'settings.title': 'ప్రొఫైల్ & సెట్టింగులు',
     'settings.profile': 'ప్రొఫైల్ సమాచారం',
     'settings.language': 'భాష ఎంపిక',
@@ -170,8 +240,8 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'assistant.title': 'AI పర్యావరణ సహాయకుడు',
     'assistant.subtitle': 'AI సహాయంతో పనిచేసే పర్యావరణ సహాయకుడు',
     'assistant.placeholder': 'కార్బన్ ఫుట్‌ప్రింట్‌ను తగ్గించడం గురించి నన్ను ఏదైనా అడగండి...',
-    'assistant.send': 'పంపండి'
-  }
+    'assistant.send': 'పంపండి',
+  },
 };
 
 interface LanguageContextType {

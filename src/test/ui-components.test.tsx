@@ -7,13 +7,15 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { AppStateProvider } from '../contexts/AppStateContext';
 
 // Simple mocks to avoid window elements errors
-window.matchMedia = window.matchMedia || function() {
-  return {
-    matches: false,
-    addListener: function() {},
-    removeListener: function() {}
+window.matchMedia =
+  window.matchMedia ||
+  function () {
+    return {
+      matches: false,
+      addListener: function () {},
+      removeListener: function () {},
+    };
   };
-};
 
 describe('Settings Page UI Tests', () => {
   it('correctly renders personal settings fields and toggles theme state', async () => {
@@ -67,7 +69,7 @@ describe('Settings Page UI Tests', () => {
 
     const saveButton = screen.getByRole('button', { name: /save/i });
     expect(saveButton).toBeInTheDocument();
-    
+
     // Trigger submit
     fireEvent.click(saveButton);
   });

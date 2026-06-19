@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { User, AuthContextType } from '../types';
+import { User, AuthContextType, RegisteredUser } from '../types';
 import {
   auth,
   isFirebaseConfigured,
@@ -8,15 +8,29 @@ import {
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   googleProvider,
-  signInWithPopup
+  signInWithPopup,
 } from '../services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => {
+    if (!isFirebaseConfigured || !auth) {
+      const savedUser = localStorage.getItem('ecotrace_user');
+      if (savedUser) {
+        try {
+          return JSON.parse(savedUser);
+        } catch {
+          localStorage.removeItem('ecotrace_user');
+        }
+      }
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(() => {
+    return !!(isFirebaseConfigured && auth);
+  });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const activeUser = {
             uid: firebaseUser.uid,
             name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            email: firebaseUser.email || ''
+            email: firebaseUser.email || '',
           };
           setUser(activeUser);
           localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
@@ -37,17 +51,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setLoading(false);
       });
-    } else {
-      // LocalStorage session management
-      const savedUser = localStorage.getItem('ecotrace_user');
-      if (savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch (e) {
-          localStorage.removeItem('ecotrace_user');
-        }
-      }
-      setLoading(false);
     }
 
     return () => {
@@ -74,17 +77,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const activeUser = {
           uid: fbUser.uid,
           name: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
-          email: fbUser.email || ''
+          email: fbUser.email || '',
         };
         setUser(activeUser);
         localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
         setLoading(false);
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorWithCode = err as { code?: string; message?: string };
         let msg = 'Invalid email or password.';
-        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        if (
+          errorWithCode.code === 'auth/user-not-found' ||
+          errorWithCode.code === 'auth/wrong-password'
+        ) {
           msg = 'Invalid email or password.';
-        } else if (err.code === 'auth/invalid-email') {
+        } else if (errorWithCode.code === 'auth/invalid-email') {
           msg = 'The email address is badly formatted.';
         }
         setError(msg);
@@ -94,11 +101,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       // Simulated authentication check
       await new Promise((resolve) => setTimeout(resolve, 600));
-      const users = JSON.parse(localStorage.getItem('ecotrace_registered_users') || '[]');
-      const matchedUser = users.find((u: any) => u.email === email && u.password === password);
+      const users: RegisteredUser[] = JSON.parse(
+        localStorage.getItem('ecotrace_registered_users') || '[]'
+      );
+      const matchedUser = users.find((u) => u.email === email && u.password === password);
 
       if (matchedUser) {
-        const activeUser = { uid: matchedUser.email, name: matchedUser.name, email: matchedUser.email };
+        const activeUser = {
+          uid: matchedUser.email,
+          name: matchedUser.name,
+          email: matchedUser.email,
+        };
         setUser(activeUser);
         localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
         setLoading(false);
@@ -135,19 +148,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const activeUser = {
           uid: fbUser.uid,
           name,
-          email
+          email,
         };
         setUser(activeUser);
         localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
         setLoading(false);
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorWithCode = err as { code?: string; message?: string };
         let msg = 'Registration failed. Please try again.';
-        if (err.code === 'auth/email-already-in-use') {
+        if (errorWithCode.code === 'auth/email-already-in-use') {
           msg = 'An account with this email already exists.';
-        } else if (err.code === 'auth/weak-password') {
+        } else if (errorWithCode.code === 'auth/weak-password') {
           msg = 'The password must be at least 6 characters long.';
-        } else if (err.code === 'auth/invalid-email') {
+        } else if (errorWithCode.code === 'auth/invalid-email') {
           msg = 'The email address is badly formatted.';
         }
         setError(msg);
@@ -157,8 +171,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       // Simulated sign up
       await new Promise((resolve) => setTimeout(resolve, 600));
-      const users = JSON.parse(localStorage.getItem('ecotrace_registered_users') || '[]');
-      if (users.some((u: any) => u.email === email)) {
+      const users: RegisteredUser[] = JSON.parse(
+        localStorage.getItem('ecotrace_registered_users') || '[]'
+      );
+      if (users.some((u) => u.email === email)) {
         setError('An account with this email already exists.');
         setLoading(false);
         return false;
@@ -199,9 +215,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await sendPasswordResetEmail(auth, email);
         setLoading(false);
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorWithCode = err as { code?: string; message?: string };
         let msg = 'Failed to send password reset email.';
-        if (err.code === 'auth/user-not-found') {
+        if (errorWithCode.code === 'auth/user-not-found') {
           msg = 'No account found with this email.';
         }
         setError(msg);
@@ -210,8 +227,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } else {
       await new Promise((resolve) => setTimeout(resolve, 600));
-      const users = JSON.parse(localStorage.getItem('ecotrace_registered_users') || '[]');
-      const userExists = users.some((u: any) => u.email === email) || email === 'eco@citizen.com';
+      const users: RegisteredUser[] = JSON.parse(
+        localStorage.getItem('ecotrace_registered_users') || '[]'
+      );
+      const userExists = users.some((u) => u.email === email) || email === 'eco@citizen.com';
 
       if (userExists) {
         setLoading(false);
@@ -235,13 +254,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const activeUser = {
           uid: fbUser.uid,
           name: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
-          email: fbUser.email || ''
+          email: fbUser.email || '',
         };
         setUser(activeUser);
         localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
         setLoading(false);
         return true;
-      } catch (err: any) {
+      } catch {
         setError('Google sign-in was cancelled or failed.');
         setLoading(false);
         return false;
@@ -249,7 +268,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       // Mock Google sign-in
       await new Promise((resolve) => setTimeout(resolve, 800));
-      const activeUser = { uid: 'google-mock-uid', name: 'Google Eco Citizen', email: 'google-eco@citizen.com' };
+      const activeUser = {
+        uid: 'google-mock-uid',
+        name: 'Google Eco Citizen',
+        email: 'google-eco@citizen.com',
+      };
       setUser(activeUser);
       localStorage.setItem('ecotrace_user', JSON.stringify(activeUser));
       setLoading(false);

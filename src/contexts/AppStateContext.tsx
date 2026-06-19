@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { CalculatorState, Quest, ToastMessage, AppStateContextType } from '../types';
+import { CalculatorState, Quest, ToastMessage, AppStateContextType, AppStateData } from '../types';
 import { BADGES, INITIAL_CALCULATOR, ACTION_SAVINGS } from '../constants';
 import { calculateCarbonBreakdown } from '../utils';
 import { saveUserData, getUserData } from '../services/firebase';
@@ -59,7 +59,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             if (parsed.lastLoggedDate) setLastLoggedDate(parsed.lastLoggedDate);
             if (parsed.hasCompletedCalc) setHasCompletedCalc(parsed.hasCompletedCalc);
             if (parsed.unlockedBadges) setUnlockedBadges(parsed.unlockedBadges);
-            
+
             // Auto sync this migrated state to user db document
             await saveUserData(userId, parsed);
           } else {
@@ -82,7 +82,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [user]);
 
   // Synchronizes changes to database/storage scoped strictly by user UID
-  const syncState = async (updates: any) => {
+  const syncState = async (updates: Partial<AppStateData>) => {
     if (!user) return;
     const userId = user.uid || user.email;
     try {
@@ -94,10 +94,10 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         lastLoggedDate,
         hasCompletedCalc,
         unlockedBadges,
-        ...updates
+        ...updates,
       };
       await saveUserData(userId, currentData);
-      
+
       // Also backup locally
       localStorage.setItem('ecotrace_app_state', JSON.stringify(currentData));
     } catch (e) {
@@ -110,7 +110,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setToasts((prev) => [...prev, { id, title, desc, icon }]);
     try {
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    } catch (e) {}
+    } catch {
+      // Ignored
+    }
   };
 
   const dismissToast = (id: string) => {
@@ -131,32 +133,39 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const saveCalculatorResults = () => {
     setHasCompletedCalc(true);
-    syncState({ hasCompletedCalc: true });
-    unlockBadge('carbon-pioneer');
-    
-    // Check specific calculator badges
+
+    const today = new Date().toISOString().split('T')[0];
+    const newUnlockedBadges = { ...unlockedBadges };
+    let unlockedAny = false;
+
+    const checkAndUnlock = (badgeId: string) => {
+      if (!newUnlockedBadges[badgeId]) {
+        newUnlockedBadges[badgeId] = today;
+        unlockedAny = true;
+        const badge = BADGES.find((b) => b.id === badgeId);
+        if (badge) {
+          triggerToast('Badge Unlocked!', badge.name, badge.icon);
+        }
+      }
+    };
+
+    checkAndUnlock('carbon-pioneer');
+
     const breakdown = calculateCarbonBreakdown(calculator);
     if (breakdown.energy <= 1.5) {
-      unlockBadge('energy-guardian');
+      checkAndUnlock('energy-guardian');
     }
     if (calculator.recyclingRate >= 75) {
-      unlockBadge('waste-ninja');
+      checkAndUnlock('waste-ninja');
     }
-  };
 
-  const unlockBadge = (badgeId: string) => {
-    setUnlockedBadges((prev) => {
-      if (prev[badgeId]) return prev;
+    if (unlockedAny) {
+      setUnlockedBadges(newUnlockedBadges);
+    }
 
-      const badge = BADGES.find((b) => b.id === badgeId);
-      if (badge) {
-        const today = new Date().toISOString().split('T')[0];
-        const updated = { ...prev, [badgeId]: today };
-        syncState({ unlockedBadges: updated });
-        triggerToast('Badge Unlocked!', badge.name, badge.icon);
-        return updated;
-      }
-      return prev;
+    syncState({
+      hasCompletedCalc: true,
+      unlockedBadges: newUnlockedBadges,
     });
   };
 
@@ -168,7 +177,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const submitDailyLog = (actionIds: string[]) => {
     const todayStr = getLocalDateString();
-    
+
     // Determine streak logic
     let nextStreak = streak;
     if (lastLoggedDate !== todayStr) {
@@ -199,27 +208,35 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const updatedLogs = { ...dailyLogs, [todayStr]: actionIds };
 
-    setStreak(nextStreak);
-    setLastLoggedDate(todayStr);
-    setTotalSavings(newTotalSavings);
-    setDailyLogs(updatedLogs);
+    // Calculate badges to unlock
+    const today = new Date().toISOString().split('T')[0];
+    const newUnlockedBadges = { ...unlockedBadges };
+    let unlockedAny = false;
 
-    syncState({
-      dailyLogs: updatedLogs,
-      totalSavings: newTotalSavings,
-      streak: nextStreak,
-      lastLoggedDate: todayStr,
-    });
+    const checkAndUnlock = (badgeId: string) => {
+      if (!newUnlockedBadges[badgeId]) {
+        newUnlockedBadges[badgeId] = today;
+        unlockedAny = true;
+        const badge = BADGES.find((b) => b.id === badgeId);
+        if (badge) {
+          triggerToast('Badge Unlocked!', badge.name, badge.icon);
+        }
+      }
+    };
 
     // Badge Check: Commute logs
     let transportCount = 0;
     Object.values(updatedLogs).forEach((log) => {
-      if (log.includes('bike-walk-commute') || log.includes('transit-commute') || log.includes('carpool')) {
+      if (
+        log.includes('bike-walk-commute') ||
+        log.includes('transit-commute') ||
+        log.includes('carpool')
+      ) {
         transportCount++;
       }
     });
     if (transportCount >= 3) {
-      unlockBadge('pedal-power');
+      checkAndUnlock('pedal-power');
     }
 
     // Badge Check: Plant meals logs
@@ -230,21 +247,37 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     });
     if (plantCount >= 5) {
-      unlockBadge('herbivore');
+      checkAndUnlock('herbivore');
     }
 
     // Badge Check: Streak
     if (nextStreak >= 5) {
-      unlockBadge('green-streak');
+      checkAndUnlock('green-streak');
     }
 
     // Badge Check: Total savings threshold
     if (newTotalSavings >= 50) {
-      unlockBadge('eco-champion');
+      checkAndUnlock('eco-champion');
     }
     if (newTotalSavings >= 110) {
-      unlockBadge('tree-planter');
+      checkAndUnlock('tree-planter');
     }
+
+    setStreak(nextStreak);
+    setLastLoggedDate(todayStr);
+    setTotalSavings(newTotalSavings);
+    setDailyLogs(updatedLogs);
+    if (unlockedAny) {
+      setUnlockedBadges(newUnlockedBadges);
+    }
+
+    syncState({
+      dailyLogs: updatedLogs,
+      totalSavings: newTotalSavings,
+      streak: nextStreak,
+      lastLoggedDate: todayStr,
+      unlockedBadges: newUnlockedBadges,
+    });
   };
 
   // Generate Quests dynamic state
@@ -252,15 +285,52 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     let transportCount = 0;
     let plantCount = 0;
     Object.values(dailyLogs).forEach((log) => {
-      if (log.includes('bike-walk-commute') || log.includes('transit-commute') || log.includes('carpool')) transportCount++;
+      if (
+        log.includes('bike-walk-commute') ||
+        log.includes('transit-commute') ||
+        log.includes('carpool')
+      )
+        transportCount++;
       if (log.includes('meatless-meals')) plantCount++;
     });
 
     return [
-      { id: 'commute-green', name: 'Commute Green', desc: 'Log public transit, walking, or cycling commutes 3 times.', target: 3, current: Math.min(transportCount, 3), unit: 'logs', rewardBadge: 'pedal-power' },
-      { id: 'plant-based', name: 'Plant-Based Week', desc: 'Log plant-based meals on 5 separate days.', target: 5, current: Math.min(plantCount, 5), unit: 'days', rewardBadge: 'herbivore' },
-      { id: 'eco-savings', name: 'Carbon Target 50kg', desc: 'Avoid 50 kg of carbon emissions from daily sustainable choices.', target: 50, current: Math.min(Math.round(totalSavings), 50), unit: 'kg', rewardBadge: 'eco-champion' },
-      { id: 'forest-planter', name: 'Tree Planter', desc: 'Offset carbon equivalent to 5 mature trees (110 kg CO₂e).', target: 110, current: Math.min(Math.round(totalSavings), 110), unit: 'kg', rewardBadge: 'tree-planter' },
+      {
+        id: 'commute-green',
+        name: 'Commute Green',
+        desc: 'Log public transit, walking, or cycling commutes 3 times.',
+        target: 3,
+        current: Math.min(transportCount, 3),
+        unit: 'logs',
+        rewardBadge: 'pedal-power',
+      },
+      {
+        id: 'plant-based',
+        name: 'Plant-Based Week',
+        desc: 'Log plant-based meals on 5 separate days.',
+        target: 5,
+        current: Math.min(plantCount, 5),
+        unit: 'days',
+        rewardBadge: 'herbivore',
+      },
+      {
+        id: 'eco-savings',
+        name: 'Carbon Target 50kg',
+        desc: 'Avoid 50 kg of carbon emissions from daily sustainable choices.',
+        target: 50,
+        current: Math.min(Math.round(totalSavings), 50),
+        unit: 'kg',
+        rewardBadge: 'eco-champion',
+      },
+      {
+        id: 'forest-planter',
+        name: 'Tree Planter',
+        desc: 'Offset carbon equivalent to 5 mature trees (110 kg CO₂e).',
+        target: 110,
+        current: Math.min(Math.round(totalSavings), 110),
+        unit: 'kg',
+        rewardBadge: 'tree-planter',
+      },
     ];
   };
 

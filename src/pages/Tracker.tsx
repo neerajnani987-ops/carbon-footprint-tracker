@@ -2,14 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAppState } from '../hooks/useAppState';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
-import {
-  Bus,
-  Zap,
-  Utensils,
-  Package,
-  Check,
-  Lightbulb,
-} from 'lucide-react';
+import { Bus, Zap, Utensils, Package, Check, Lightbulb } from 'lucide-react';
 
 const ACTION_GROUPS = [
   {
@@ -17,9 +10,24 @@ const ACTION_GROUPS = [
     icon: Bus,
     color: 'indigo',
     actions: [
-      { id: 'transit-commute', title: 'Took Public Transit', desc: 'Swapped personal car for train, bus, or subway.', saving: 2.5 },
-      { id: 'bike-walk-commute', title: 'Biked, Walked, or Scooted', desc: 'Zero emissions commuting to work, school, or errands.', saving: 3.2 },
-      { id: 'carpool', title: 'Carpooled with Others', desc: 'Shared a ride to halve commute footprint.', saving: 1.8 },
+      {
+        id: 'transit-commute',
+        title: 'Took Public Transit',
+        desc: 'Swapped personal car for train, bus, or subway.',
+        saving: 2.5,
+      },
+      {
+        id: 'bike-walk-commute',
+        title: 'Biked, Walked, or Scooted',
+        desc: 'Zero emissions commuting to work, school, or errands.',
+        saving: 3.2,
+      },
+      {
+        id: 'carpool',
+        title: 'Carpooled with Others',
+        desc: 'Shared a ride to halve commute footprint.',
+        saving: 1.8,
+      },
     ],
   },
   {
@@ -27,9 +35,24 @@ const ACTION_GROUPS = [
     icon: Zap,
     color: 'blue',
     actions: [
-      { id: 'energy-standby', title: 'Unplugged Phantom Loads', desc: 'Turned off power strips and standby electronic appliances.', saving: 0.3 },
-      { id: 'dryer-avoid', title: 'Air-Dried Laundry', desc: 'Avoided tumble dryer; used a drying rack or washing line.', saving: 0.8 },
-      { id: 'temp-thermostat', title: 'Eco-Thermostat Setting', desc: 'Adjusted heating down or A/C up by 2°F for the day.', saving: 1.2 },
+      {
+        id: 'energy-standby',
+        title: 'Unplugged Phantom Loads',
+        desc: 'Turned off power strips and standby electronic appliances.',
+        saving: 0.3,
+      },
+      {
+        id: 'dryer-avoid',
+        title: 'Air-Dried Laundry',
+        desc: 'Avoided tumble dryer; used a drying rack or washing line.',
+        saving: 0.8,
+      },
+      {
+        id: 'temp-thermostat',
+        title: 'Eco-Thermostat Setting',
+        desc: 'Adjusted heating down or A/C up by 2°F for the day.',
+        saving: 1.2,
+      },
     ],
   },
   {
@@ -37,8 +60,18 @@ const ACTION_GROUPS = [
     icon: Utensils,
     color: 'green',
     actions: [
-      { id: 'meatless-meals', title: 'Ate Plant-Based Meals', desc: 'Substituted beef, pork, or dairy with plant protein.', saving: 1.5 },
-      { id: 'zero-food-waste', title: 'Zero Food Waste Day', desc: 'Finished all leftovers and avoided spoiling items.', saving: 0.5 },
+      {
+        id: 'meatless-meals',
+        title: 'Ate Plant-Based Meals',
+        desc: 'Substituted beef, pork, or dairy with plant protein.',
+        saving: 1.5,
+      },
+      {
+        id: 'zero-food-waste',
+        title: 'Zero Food Waste Day',
+        desc: 'Finished all leftovers and avoided spoiling items.',
+        saving: 0.5,
+      },
     ],
   },
   {
@@ -46,8 +79,18 @@ const ACTION_GROUPS = [
     icon: Package,
     color: 'amber',
     actions: [
-      { id: 'plastic-free', title: 'Single-Use Plastic Free', desc: 'Brought canvas bags, steel flasks, or metal straws.', saving: 0.2 },
-      { id: 'composting', title: 'Composted Organic Waste', desc: 'Diverted organic waste from landfills to prevent methane.', saving: 0.4 },
+      {
+        id: 'plastic-free',
+        title: 'Single-Use Plastic Free',
+        desc: 'Brought canvas bags, steel flasks, or metal straws.',
+        saving: 0.2,
+      },
+      {
+        id: 'composting',
+        title: 'Composted Organic Waste',
+        desc: 'Diverted organic waste from landfills to prevent methane.',
+        saving: 0.4,
+      },
     ],
   },
 ];
@@ -76,11 +119,16 @@ const Tracker: React.FC = () => {
   const todayStr = getLocalDateString();
 
   // Load today's log on mount
-  const [selectedActions, setSelectedActions] = useState<string[]>([]);
+  const [selectedActions, setSelectedActions] = useState<string[]>(() => {
+    return dailyLogs[todayStr] || [];
+  });
 
   useEffect(() => {
     const todayLogs = dailyLogs[todayStr] || [];
-    setSelectedActions(todayLogs);
+    const handle = setTimeout(() => {
+      setSelectedActions(todayLogs);
+    }, 0);
+    return () => clearTimeout(handle);
   }, [dailyLogs, todayStr]);
 
   // Tip of the day selection
@@ -164,7 +212,10 @@ const Tracker: React.FC = () => {
       className="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto"
     >
       {/* Logger form wrapper */}
-      <form onSubmit={handleSubmit} className="flex-1 glass-card p-6 md:p-8 border border-white/5 flex flex-col gap-6">
+      <form
+        onSubmit={handleSubmit}
+        className="flex-1 glass-card p-6 md:p-8 border border-white/5 flex flex-col gap-6"
+      >
         <div>
           <h2 className="text-white font-bold font-outfit text-xl mb-1">{t('tracker.title')}</h2>
           <p className="text-xs text-eco-muted leading-relaxed">{t('tracker.desc')}</p>
@@ -185,20 +236,35 @@ const Tracker: React.FC = () => {
                     return (
                       <label
                         key={act.id}
-                        onClick={() => handleToggleAction(act.id)}
+                        htmlFor={act.id}
                         className={`flex items-center justify-between p-4 bg-eco-forest/15 hover:bg-eco-forest/25 border rounded-2xl cursor-pointer transition-all duration-300 ${
                           isChecked ? 'border-eco-green/45 bg-eco-green/5' : 'border-white/5'
                         }`}
                       >
+                        <input
+                          type="checkbox"
+                          id={act.id}
+                          checked={isChecked}
+                          onChange={() => handleToggleAction(act.id)}
+                          className="sr-only"
+                        />
                         <div className="flex items-start gap-3.5 pr-4 select-none">
-                          <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-all ${
-                            isChecked ? 'bg-eco-green border-eco-green text-white' : 'border-white/20'
-                          }`}>
+                          <div
+                            className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-all ${
+                              isChecked
+                                ? 'bg-eco-green border-eco-green text-white'
+                                : 'border-white/20'
+                            }`}
+                          >
                             {isChecked && <Check className="w-3.5 h-3.5 stroke-[3.5]" />}
                           </div>
                           <div>
-                            <div className="text-white font-semibold text-xs leading-none mb-1.5">{act.title}</div>
-                            <div className="text-[11px] text-eco-muted leading-relaxed">{act.desc}</div>
+                            <div className="text-white font-semibold text-xs leading-none mb-1.5">
+                              {act.title}
+                            </div>
+                            <div className="text-[11px] text-eco-muted leading-relaxed">
+                              {act.desc}
+                            </div>
                           </div>
                         </div>
                         <span className="text-[10px] font-extrabold px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-eco-green shrink-0 font-outfit">
@@ -226,19 +292,21 @@ const Tracker: React.FC = () => {
 
       {/* Stats and Eco tips sidebar panel */}
       <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
-        
         {/* Today's savings dial */}
         <div className="glass-card p-6 border border-white/5 text-center flex flex-col justify-center items-center">
           <span className="text-[10px] font-bold uppercase tracking-wider text-eco-muted mb-2">
             {t('tracker.todaySummary')}
           </span>
-          <div className="text-3xl font-outfit font-black text-white leading-none my-1">
+          <div
+            data-testid="saved-co2-number"
+            className="text-3xl font-outfit font-black text-white leading-none my-1"
+          >
             {currentSavings.toFixed(1)}
           </div>
-          <span className="text-xs text-eco-muted font-medium mb-4">kg CO₂e Saved</span>
-          
+          <span className="text-xs text-eco-muted font-medium mb-4">{t('tracker.co2Saved')}</span>
+
           <div className="w-full h-px bg-white/5 my-3"></div>
-          
+
           <p className="text-[11px] text-eco-green leading-relaxed max-w-[200px]">
             {t('tracker.smartphoneEq', { charges: smartphoneCharges })}
           </p>
@@ -250,7 +318,9 @@ const Tracker: React.FC = () => {
             <Lightbulb className="w-5 h-5" />
           </div>
           <div>
-            <h5 className="font-outfit font-bold text-white text-xs mb-1.5">{t('tracker.tipTitle')}</h5>
+            <h5 className="font-outfit font-bold text-white text-xs mb-1.5">
+              {t('tracker.tipTitle')}
+            </h5>
             <p className="text-[11px] text-eco-muted leading-relaxed">{ecoTip}</p>
           </div>
         </div>
@@ -270,7 +340,9 @@ const Tracker: React.FC = () => {
                 >
                   <div>
                     <div className="text-white font-medium mb-0.5">{log.date}</div>
-                    <div className="text-[10px] text-eco-muted font-medium">{log.count} actions logged</div>
+                    <div className="text-[10px] text-eco-muted font-medium">
+                      {log.count} actions logged
+                    </div>
                   </div>
                   <span className="font-bold text-eco-green font-outfit">+{log.savings} kg</span>
                 </div>
@@ -282,7 +354,6 @@ const Tracker: React.FC = () => {
             </p>
           )}
         </div>
-
       </div>
     </motion.div>
   );

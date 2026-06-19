@@ -1,55 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-const COEFFS = {
-  vehicle: { petrol: 0.411, diesel: 0.355, hybrid: 0.220, ev: 0.080, motorbike: 0.180, none: 0.0 } as Record<string, number>,
-  flights: { short: 225, long: 820 },
-  electric: { kwhCost: 0.15, co2PerKwh: 0.39 },
-  gas: { thermCost: 1.0, co2PerTherm: 5.3 },
-  diet: { 'heavy-meat': 3.3, 'moderate-meat': 2.5, 'low-meat': 1.7, 'vegetarian': 1.2, 'vegan': 0.9 } as Record<string, number>,
-  waste: { perBag: 0.25 },
-};
-
-function calculateCarbonBreakdown(calculator: any) {
-  // 1. Transportation Annual Carbon (Tons)
-  let transportCo2 = 0;
-  if (calculator.vehicleType !== 'none') {
-    const annualMiles = calculator.vehicleMiles * 52;
-    const coeff = COEFFS.vehicle[calculator.vehicleType] || 0;
-    transportCo2 += annualMiles * coeff;
-  }
-  transportCo2 += calculator.flightsShort * COEFFS.flights.short;
-  transportCo2 += calculator.flightsLong * COEFFS.flights.long;
-  transportCo2 = transportCo2 / 1000; // convert to tons
-
-  // 2. Home Energy Annual Carbon (Tons)
-  const annualKwh = (calculator.electricBill / COEFFS.electric.kwhCost) * 12;
-  const standardGridShare = 1 - calculator.cleanEnergyShare / 100;
-  const electricCo2 = (annualKwh * standardGridShare * COEFFS.electric.co2PerKwh) / 1000;
-
-  const annualTherms = (calculator.gasBill / COEFFS.gas.thermCost) * 12;
-  const gasCo2 = (annualTherms * COEFFS.gas.co2PerTherm) / 1000;
-  const energyCo2 = electricCo2 + gasCo2;
-
-  // 3. Diet Annual Carbon (Tons)
-  const dietBase = COEFFS.diet[calculator.dietType] || 2.0;
-  const dietDiscount = (calculator.localFoodShare / 100) * 0.1;
-  const dietCo2 = dietBase * (1 - dietDiscount);
-
-  // 4. Waste Annual Carbon (Tons)
-  const wasteBase = calculator.wasteBags * COEFFS.waste.perBag;
-  const wasteDiscount = (calculator.recyclingRate / 100) * 0.5;
-  const wasteCo2 = wasteBase * (1 - wasteDiscount);
-
-  const total = transportCo2 + energyCo2 + dietCo2 + wasteCo2;
-
-  return {
-    transport: parseFloat(transportCo2.toFixed(2)),
-    energy: parseFloat(energyCo2.toFixed(2)),
-    diet: parseFloat(dietCo2.toFixed(2)),
-    waste: parseFloat(wasteCo2.toFixed(2)),
-    total: parseFloat(total.toFixed(2)),
-  };
-}
+import { calculateCarbonBreakdown } from '../utils';
 
 describe('Carbon Calculation Math', () => {
   it('correctly calculates carbon breakdown for low-impact eco-conscious profiles', () => {
@@ -81,7 +32,7 @@ describe('Carbon Calculation Math', () => {
     // Waste: 1 bag * 0.25 = 0.25 tons. Recycling 100% discount = 50%. 0.25 * 0.5 = 0.13 tons.
     expect(breakdown.waste).toBe(0.13);
 
-    expect(breakdown.total).toBe(1.70); // 0.08 + 0.64 + 0.85 + 0.13
+    expect(breakdown.total).toBe(1.7); // 0.08 + 0.64 + 0.85 + 0.13
   });
 
   it('correctly calculates carbon breakdown for high-impact profiles', () => {
@@ -117,5 +68,65 @@ describe('Carbon Calculation Math', () => {
     expect(breakdown.waste).toBe(0.9);
 
     expect(breakdown.total).toBe(19.21); // 5.75 + 9.30 + 3.27 + 0.90
+  });
+
+  it('correctly handles extreme / boundary inputs in calculations', () => {
+    const zeroCalculator = {
+      vehicleType: 'none',
+      vehicleMiles: 0,
+      flightsShort: 0,
+      flightsLong: 0,
+      electricBill: 0,
+      gasBill: 0,
+      cleanEnergyShare: 100,
+      dietType: 'vegan',
+      localFoodShare: 100,
+      wasteBags: 0,
+      recyclingRate: 100,
+    };
+
+    const breakdown = calculateCarbonBreakdown(zeroCalculator);
+    expect(breakdown.transport).toBe(0);
+    expect(breakdown.energy).toBe(0);
+    expect(breakdown.diet).toBe(0.81);
+    expect(breakdown.waste).toBe(0);
+    expect(breakdown.total).toBe(0.81);
+  });
+});
+
+import { validateCalculatorState, sanitizeText } from '../utils';
+
+describe('Utility Functions - Validation & Sanitization', () => {
+  it('clamps and validates calculator inputs correctly', () => {
+    const invalidCalculator = {
+      vehicleType: 'rocketship',
+      vehicleMiles: -50,
+      flightsShort: 500,
+      electricBill: -100,
+      cleanEnergyShare: 150,
+      dietType: 'candy-diet',
+      recyclingRate: -10,
+    };
+
+    const validated = validateCalculatorState(invalidCalculator);
+    expect(validated.vehicleType).toBe('none');
+    expect(validated.vehicleMiles).toBe(0);
+    expect(validated.flightsShort).toBe(100);
+    expect(validated.electricBill).toBe(0);
+    expect(validated.cleanEnergyShare).toBe(100);
+    expect(validated.dietType).toBe('moderate-meat');
+    expect(validated.recyclingRate).toBe(0);
+  });
+
+  it('sanitizes text inputs to prevent XSS script injections', () => {
+    const maliciousInput = '<script>alert("hack")</script>';
+    const sanitized = sanitizeText(maliciousInput);
+    expect(sanitized).not.toContain('<script>');
+    expect(sanitized).toContain('&lt;script&gt;');
+
+    const normalInput = 'Hello Eco citizen!';
+    expect(sanitizeText(normalInput)).toBe(normalInput);
+
+    expect(sanitizeText('')).toBe('');
   });
 });

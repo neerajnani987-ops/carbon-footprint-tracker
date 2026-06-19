@@ -66,67 +66,67 @@ const App: React.FC = () => {
       <HashRouter>
         <LanguageProvider>
           <AuthProvider>
-          <AppStateProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Landing />} />
-                
-                {/* Auth Routes */}
-                <Route
-                  path="/signin"
-                  element={
-                    <PublicRoute>
-                      <SignIn />
-                    </PublicRoute>
-                  }
-                />
-                <Route
-                  path="/signup"
-                  element={
-                    <PublicRoute>
-                      <SignUp />
-                    </PublicRoute>
-                  }
-                />
-                <Route
-                  path="/forgot-password"
-                  element={
-                    <PublicRoute>
-                      <ForgotPassword />
-                    </PublicRoute>
-                  }
-                />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
+            <AppStateProvider>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Landing />} />
 
-                {/* Protected Dashboard Views */}
-                <Route
-                  path="/*"
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Routes>
-                          <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="calculator" element={<Calculator />} />
-                          <Route path="tracker" element={<Tracker />} />
-                          <Route path="quests" element={<Quests />} />
-                          <Route path="assistant" element={<AIAssistant />} />
-                          <Route path="analytics" element={<Analytics />} />
-                          <Route path="settings" element={<Settings />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </Layout>
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </Suspense>
-          </AppStateProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </HashRouter>
-  </ErrorBoundary>
-);
+                  {/* Auth Routes */}
+                  <Route
+                    path="/signin"
+                    element={
+                      <PublicRoute>
+                        <SignIn />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/signup"
+                    element={
+                      <PublicRoute>
+                        <SignUp />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/forgot-password"
+                    element={
+                      <PublicRoute>
+                        <ForgotPassword />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+
+                  {/* Protected Dashboard Views */}
+                  <Route
+                    path="/*"
+                    element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Routes>
+                            <Route path="dashboard" element={<Dashboard />} />
+                            <Route path="calculator" element={<Calculator />} />
+                            <Route path="tracker" element={<Tracker />} />
+                            <Route path="quests" element={<Quests />} />
+                            <Route path="assistant" element={<AIAssistant />} />
+                            <Route path="analytics" element={<Analytics />} />
+                            <Route path="settings" element={<Settings />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </Layout>
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </Suspense>
+            </AppStateProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </HashRouter>
+    </ErrorBoundary>
+  );
 };
 
 export default App;

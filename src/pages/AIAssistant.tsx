@@ -12,6 +12,9 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+const generateMsgId = () => Math.random().toString(36).substring(2, 9);
+const createDate = () => new Date();
+
 const AIAssistant: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -22,7 +25,7 @@ const AIAssistant: React.FC = () => {
       id: 'welcome',
       sender: 'assistant',
       text: `Hello ${user?.name || 'Eco-Citizen'}! I am your AI Sustainability Assistant. Ask me anything about how you can reduce your carbon emissions, optimize home utilities, or improve recycling habits.`,
-      timestamp: new Date(),
+      timestamp: createDate(),
     },
   ]);
   const [inputVal, setInputVal] = useState('');
@@ -37,7 +40,7 @@ const AIAssistant: React.FC = () => {
     'Analyze my monthly footprint.',
     'How can I reduce my transport emissions?',
     'Suggest ways to save electricity.',
-    'Tips for zero-waste recycling.'
+    'Tips for zero-waste recycling.',
   ];
 
   // Scroll to bottom on new messages
@@ -60,7 +63,13 @@ const AIAssistant: React.FC = () => {
     const text = userText.toLowerCase();
 
     // 1. Analyze monthly footprint
-    if (text.includes('analyze') || text.includes('monthly') || text.includes('report') || text.includes('footprint') || text.includes('score')) {
+    if (
+      text.includes('analyze') ||
+      text.includes('monthly') ||
+      text.includes('report') ||
+      text.includes('footprint') ||
+      text.includes('score')
+    ) {
       if (!hasCompletedCalc) {
         return "It looks like you haven't completed your Carbon Footprint Calculator yet! Please fill out the form in the 'Footprint Calculator' tab so I can inspect your habits and provide a customized analysis of your carbon footprint.";
       }
@@ -84,8 +93,19 @@ Your highest emission sector is **${highestSector}**. I recommend reviewing your
     }
 
     // 2. Transport emissions
-    if (text.includes('transport') || text.includes('car') || text.includes('flight') || text.includes('travel') || text.includes('commute') || text.includes('driving')) {
-      if (calculator.vehicleType === 'none' && calculator.flightsShort === 0 && calculator.flightsLong === 0) {
+    if (
+      text.includes('transport') ||
+      text.includes('car') ||
+      text.includes('flight') ||
+      text.includes('travel') ||
+      text.includes('commute') ||
+      text.includes('driving')
+    ) {
+      if (
+        calculator.vehicleType === 'none' &&
+        calculator.flightsShort === 0 &&
+        calculator.flightsLong === 0
+      ) {
         return 'Outstanding! Your transportation emissions are currently zero or extremely low since you walk, cycle, and do not fly. Keep up this world-class sustainability benchmark!';
       }
 
@@ -104,7 +124,15 @@ Your highest emission sector is **${highestSector}**. I recommend reviewing your
     }
 
     // 3. Electricity / utilities
-    if (text.includes('electric') || text.includes('energy') || text.includes('power') || text.includes('bill') || text.includes('gas') || text.includes('solar') || text.includes('utility')) {
+    if (
+      text.includes('electric') ||
+      text.includes('energy') ||
+      text.includes('power') ||
+      text.includes('bill') ||
+      text.includes('gas') ||
+      text.includes('solar') ||
+      text.includes('utility')
+    ) {
       return `Your monthly electricity bill is set to **$${calculator.electricBill}**, with natural gas at **$${calculator.gasBill}**, and renewable solar share at **${calculator.cleanEnergyShare}%**.
 
 Here are some high-impact adjustments you can make at home:
@@ -115,7 +143,15 @@ Here are some high-impact adjustments you can make at home:
     }
 
     // 4. Food / diet
-    if (text.includes('food') || text.includes('diet') || text.includes('meat') || text.includes('vegan') || text.includes('vegetarian') || text.includes('local') || text.includes('organic')) {
+    if (
+      text.includes('food') ||
+      text.includes('diet') ||
+      text.includes('meat') ||
+      text.includes('vegan') ||
+      text.includes('vegetarian') ||
+      text.includes('local') ||
+      text.includes('organic')
+    ) {
       return `Your diet is configured as **${calculator.dietType}**, with local organic food sourcing at **${calculator.localFoodShare}%**.
 
 To reduce your food-related carbon impact, you can:
@@ -125,7 +161,13 @@ To reduce your food-related carbon impact, you can:
     }
 
     // 5. Waste / recycling
-    if (text.includes('waste') || text.includes('recycle') || text.includes('recycling') || text.includes('trash') || text.includes('compost')) {
+    if (
+      text.includes('waste') ||
+      text.includes('recycle') ||
+      text.includes('recycling') ||
+      text.includes('trash') ||
+      text.includes('compost')
+    ) {
       return `Your household waste production is **${calculator.wasteBags} bags/week**, with a recycling rate of **${calculator.recyclingRate}%**.
 
 Here are some quick waste reduction tips:
@@ -142,10 +184,10 @@ Here are some quick waste reduction tips:
     if (!text.trim()) return;
 
     const userMsg: ChatMessage = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: generateMsgId(),
       sender: 'user',
       text,
-      timestamp: new Date(),
+      timestamp: createDate(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -156,10 +198,10 @@ Here are some quick waste reduction tips:
     setTimeout(() => {
       const responseText = generateAIResponse(text);
       const aiMsg: ChatMessage = {
-        id: Math.random().toString(36).substring(2, 9),
+        id: generateMsgId(),
         sender: 'assistant',
         text: responseText,
-        timestamp: new Date(),
+        timestamp: createDate(),
       };
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
@@ -182,7 +224,9 @@ Here are some quick waste reduction tips:
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-eco-green rounded-full border-2 border-eco-bg"></span>
           </div>
           <div>
-            <h3 className="text-white font-bold font-outfit text-sm leading-none">{t('assistant.title')}</h3>
+            <h3 className="text-white font-bold font-outfit text-sm leading-none">
+              {t('assistant.title')}
+            </h3>
             <p className="text-[10px] text-eco-muted mt-1">{t('assistant.subtitle')}</p>
           </div>
         </div>
@@ -210,20 +254,24 @@ Here are some quick waste reduction tips:
                 className={`flex gap-3 max-w-[85%] ${isUser ? 'self-end flex-row-reverse' : 'self-start'}`}
               >
                 {/* Avatar */}
-                <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 text-xs shadow-md ${
-                  isUser
-                    ? 'bg-gradient-to-tr from-eco-green/20 to-eco-teal/20 text-eco-green border-eco-green/35'
-                    : 'bg-gradient-to-tr from-white/5 to-white/10 text-white border-white/15'
-                }`}>
+                <div
+                  className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 text-xs shadow-md ${
+                    isUser
+                      ? 'bg-gradient-to-tr from-eco-green/20 to-eco-teal/20 text-eco-green border-eco-green/35'
+                      : 'bg-gradient-to-tr from-white/5 to-white/10 text-white border-white/15'
+                  }`}
+                >
                   {isUser ? <User className="w-4 h-4" /> : <Leaf className="w-4 h-4" />}
                 </div>
 
                 {/* Text Bubble */}
-                <div className={`p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap shadow-lg ${
-                  isUser
-                    ? 'bg-eco-green text-white font-medium rounded-tr-none'
-                    : 'bg-[#0f1f18]/90 border border-white/5 text-eco-text rounded-tl-none'
-                }`}>
+                <div
+                  className={`p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap shadow-lg ${
+                    isUser
+                      ? 'bg-eco-green text-white font-medium rounded-tr-none'
+                      : 'bg-[#0f1f18]/90 border border-white/5 text-eco-text rounded-tl-none'
+                  }`}
+                >
                   {msg.text}
                 </div>
               </motion.div>

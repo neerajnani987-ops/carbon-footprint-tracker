@@ -80,3 +80,19 @@ export interface AppStateContextType {
     total: number;
   };
 }
+
+export interface AppStateData {
+  calculator?: CalculatorState;
+  dailyLogs?: Record<string, string[]>;
+  totalSavings?: number;
+  streak?: number;
+  lastLoggedDate?: string | null;
+  hasCompletedCalc?: boolean;
+  unlockedBadges?: Record<string, string>;
+}
+
+export interface RegisteredUser {
+  name: string;
+  email: string;
+  password?: string;
+}

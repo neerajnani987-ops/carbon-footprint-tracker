@@ -150,8 +150,8 @@ const Calculator: React.FC = () => {
                     isActive
                       ? 'bg-eco-green text-white'
                       : isCompleted
-                      ? 'bg-eco-green/20 text-eco-green'
-                      : 'bg-white/5 text-eco-muted border border-white/10'
+                        ? 'bg-eco-green/20 text-eco-green'
+                        : 'bg-white/5 text-eco-muted border border-white/10'
                   }`}
                 >
                   {isCompleted ? <Check className="w-3 h-3 stroke-[3]" /> : idx + 1}
@@ -184,11 +184,17 @@ const Calculator: React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="vehicleType" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="vehicleType"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Primary Commute Vehicle</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Select your primary mode of private transport. EV stands for Electric Vehicle.</span>
+                            <span className="tooltip-text">
+                              Select your primary mode of private transport. EV stands for Electric
+                              Vehicle.
+                            </span>
                           </span>
                         </label>
                       </div>
@@ -210,11 +216,16 @@ const Calculator: React.FC = () => {
                     {calculator.vehicleType !== 'none' && (
                       <div className="flex flex-col gap-2.5">
                         <div className="flex justify-between items-center">
-                          <label htmlFor="vehicleMiles" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                          <label
+                            htmlFor="vehicleMiles"
+                            className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                          >
                             <span>Weekly Commute Distance</span>
                             <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                               <HelpCircle className="w-3.5 h-3.5" />
-                              <span className="tooltip-text">Estimate the total distance driven weekly in this vehicle.</span>
+                              <span className="tooltip-text">
+                                Estimate the total distance driven weekly in this vehicle.
+                              </span>
                             </span>
                           </label>
                           {/* Unit Selector */}
@@ -261,7 +272,9 @@ const Calculator: React.FC = () => {
                     <div className="pt-4 border-t border-white/5">
                       <div className="flex items-center gap-2 mb-4">
                         <Plane className="w-5 h-5 text-eco-green" />
-                        <h4 className="text-white font-bold font-outfit text-sm">Flights & Air Travel</h4>
+                        <h4 className="text-white font-bold font-outfit text-sm">
+                          Flights & Air Travel
+                        </h4>
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-6">
@@ -271,10 +284,14 @@ const Calculator: React.FC = () => {
                               <span>Short Flights</span>
                               <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                                 <HelpCircle className="w-3.5 h-3.5" />
-                                <span className="tooltip-text">Domestic or regional trips under 3 hours each way.</span>
+                                <span className="tooltip-text">
+                                  Domestic or regional trips under 3 hours each way.
+                                </span>
                               </span>
                             </label>
-                            <span className="text-[10px] text-eco-muted">Regional commutes (&lt; 3 hrs)</span>
+                            <span className="text-[10px] text-eco-muted">
+                              Regional commutes (&lt; 3 hrs)
+                            </span>
                           </div>
                           <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 w-36">
                             <button
@@ -306,10 +323,14 @@ const Calculator: React.FC = () => {
                               <span>Long Flights</span>
                               <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                                 <HelpCircle className="w-3.5 h-3.5" />
-                                <span className="tooltip-text">Long-haul or international trips over 3 hours each way.</span>
+                                <span className="tooltip-text">
+                                  Long-haul or international trips over 3 hours each way.
+                                </span>
                               </span>
                             </label>
-                            <span className="text-[10px] text-eco-muted">International trips (&gt; 3 hrs)</span>
+                            <span className="text-[10px] text-eco-muted">
+                              International trips (&gt; 3 hrs)
+                            </span>
                           </div>
                           <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 w-36">
                             <button
@@ -349,11 +370,17 @@ const Calculator: React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="electricBill" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="electricBill"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Monthly Electricity Bill</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Enter in currency ($) or direct power usage (kWh). 1 kWh is estimated at $0.15.</span>
+                            <span className="tooltip-text">
+                              Enter in currency ($) or direct power usage (kWh). 1 kWh is estimated
+                              at $0.15.
+                            </span>
                           </span>
                         </label>
                         {/* Unit selector */}
@@ -386,7 +413,8 @@ const Calculator: React.FC = () => {
                           className="flex-1 accent-eco-green bg-white/5 rounded-lg appearance-none h-1.5 cursor-pointer eco-slider mr-4"
                         />
                         <span className="text-xs font-bold text-eco-green font-outfit w-20 text-right">
-                          {electricUnit === 'usd' ? '$' : ''}{getDisplayElectric()} {electricUnit === 'kwh' ? 'kWh' : ''}
+                          {electricUnit === 'usd' ? '$' : ''}
+                          {getDisplayElectric()} {electricUnit === 'kwh' ? 'kWh' : ''}
                         </span>
                       </div>
                       <div className="flex justify-between text-[10px] text-eco-muted">
@@ -398,11 +426,17 @@ const Calculator: React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="gasBill" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="gasBill"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Monthly Natural Gas Bill</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Enter in currency ($) or usage (Therms). 1 Therm is estimated at $1.00.</span>
+                            <span className="tooltip-text">
+                              Enter in currency ($) or usage (Therms). 1 Therm is estimated at
+                              $1.00.
+                            </span>
                           </span>
                         </label>
                         {/* Unit selector */}
@@ -435,7 +469,8 @@ const Calculator: React.FC = () => {
                           className="flex-1 accent-eco-green bg-white/5 rounded-lg appearance-none h-1.5 cursor-pointer eco-slider mr-4"
                         />
                         <span className="text-xs font-bold text-eco-green font-outfit w-20 text-right">
-                          {gasUnit === 'usd' ? '$' : ''}{getDisplayGas()} {gasUnit === 'therm' ? 'Therms' : ''}
+                          {gasUnit === 'usd' ? '$' : ''}
+                          {getDisplayGas()} {gasUnit === 'therm' ? 'Therms' : ''}
                         </span>
                       </div>
                       <div className="flex justify-between text-[10px] text-eco-muted">
@@ -447,11 +482,17 @@ const Calculator: React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="cleanEnergyShare" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="cleanEnergyShare"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Clean / Solar Grid Share</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Percentage of your electricity derived from solar panels or certified clean renewable tariffs.</span>
+                            <span className="tooltip-text">
+                              Percentage of your electricity derived from solar panels or certified
+                              clean renewable tariffs.
+                            </span>
                           </span>
                         </label>
                         <span className="text-xs font-bold text-eco-green font-outfit">
@@ -465,7 +506,9 @@ const Calculator: React.FC = () => {
                         max="100"
                         step="5"
                         value={calculator.cleanEnergyShare}
-                        onChange={(e) => updateCalculator({ cleanEnergyShare: parseInt(e.target.value) })}
+                        onChange={(e) =>
+                          updateCalculator({ cleanEnergyShare: parseInt(e.target.value) })
+                        }
                         className="w-full accent-eco-green bg-white/5 rounded-lg appearance-none h-1.5 cursor-pointer eco-slider"
                       />
                       <div className="flex justify-between text-[10px] text-eco-muted">
@@ -482,15 +525,23 @@ const Calculator: React.FC = () => {
                   <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-2.5 pb-3 border-b border-white/5">
                       <Utensils className="w-5 h-5 text-eco-green" />
-                      <h3 className="text-white font-bold font-outfit">Diet Habits & Food Consumption</h3>
+                      <h3 className="text-white font-bold font-outfit">
+                        Diet Habits & Food Consumption
+                      </h3>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="dietType" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                      <label
+                        htmlFor="dietType"
+                        className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                      >
                         <span>Diet Pattern</span>
                         <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                           <HelpCircle className="w-3.5 h-3.5" />
-                          <span className="tooltip-text">Select your daily eating habits. Heavy beef/pork consumption carries the highest carbon coefficients.</span>
+                          <span className="tooltip-text">
+                            Select your daily eating habits. Heavy beef/pork consumption carries the
+                            highest carbon coefficients.
+                          </span>
                         </span>
                       </label>
                       <select
@@ -500,20 +551,32 @@ const Calculator: React.FC = () => {
                         className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-eco-green/40 focus:bg-white/10 text-white text-sm focus:outline-none transition-all font-outfit"
                       >
                         <option value="heavy-meat">Heavy Meat Lover (Beef/Pork daily)</option>
-                        <option value="moderate-meat">Average Meat Eater (Mixed meat/poultry)</option>
-                        <option value="low-meat">Low Meat / Pescatarian (Fish & poultry, no red meat)</option>
-                        <option value="vegetarian">Vegetarian (No meat/fish, includes dairy/eggs)</option>
+                        <option value="moderate-meat">
+                          Average Meat Eater (Mixed meat/poultry)
+                        </option>
+                        <option value="low-meat">
+                          Low Meat / Pescatarian (Fish & poultry, no red meat)
+                        </option>
+                        <option value="vegetarian">
+                          Vegetarian (No meat/fish, includes dairy/eggs)
+                        </option>
                         <option value="vegan">Vegan (Fully plant-based)</option>
                       </select>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="localFoodShare" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="localFoodShare"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Local / Organic Sourced Share</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Percentage of groceries grown locally or organically, reducing freight emissions (food miles).</span>
+                            <span className="tooltip-text">
+                              Percentage of groceries grown locally or organically, reducing freight
+                              emissions (food miles).
+                            </span>
                           </span>
                         </label>
                         <span className="text-xs font-bold text-eco-green font-outfit">
@@ -527,7 +590,9 @@ const Calculator: React.FC = () => {
                         max="100"
                         step="10"
                         value={calculator.localFoodShare}
-                        onChange={(e) => updateCalculator({ localFoodShare: parseInt(e.target.value) })}
+                        onChange={(e) =>
+                          updateCalculator({ localFoodShare: parseInt(e.target.value) })
+                        }
                         className="w-full accent-eco-green bg-white/5 rounded-lg appearance-none h-1.5 cursor-pointer eco-slider"
                       />
                       <div className="flex justify-between text-[10px] text-eco-muted">
@@ -544,16 +609,23 @@ const Calculator: React.FC = () => {
                   <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-2.5 pb-3 border-b border-white/5">
                       <Trash2 className="w-5 h-5 text-eco-green" />
-                      <h3 className="text-white font-bold font-outfit">Household Waste Production</h3>
+                      <h3 className="text-white font-bold font-outfit">
+                        Household Waste Production
+                      </h3>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="wasteBags" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="wasteBags"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Weekly Landfill Waste Volume</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Estimate the number of standard trash bags sent to landfill weekly.</span>
+                            <span className="tooltip-text">
+                              Estimate the number of standard trash bags sent to landfill weekly.
+                            </span>
                           </span>
                         </label>
                         <span className="text-xs font-bold text-eco-green font-outfit">
@@ -579,11 +651,17 @@ const Calculator: React.FC = () => {
 
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="recyclingRate" className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center">
+                        <label
+                          htmlFor="recyclingRate"
+                          className="text-xs font-semibold text-eco-muted uppercase tracking-wider flex items-center"
+                        >
                           <span>Household Recycling Rate</span>
                           <span className="eco-tooltip ml-1.5 cursor-help text-eco-muted/50 hover:text-white">
                             <HelpCircle className="w-3.5 h-3.5" />
-                            <span className="tooltip-text">Percentage of recyclable waste (paper, plastic, glass, tins) sorted correctly.</span>
+                            <span className="tooltip-text">
+                              Percentage of recyclable waste (paper, plastic, glass, tins) sorted
+                              correctly.
+                            </span>
                           </span>
                         </label>
                         <span className="text-xs font-bold text-eco-green font-outfit">
@@ -597,7 +675,9 @@ const Calculator: React.FC = () => {
                         max="100"
                         step="5"
                         value={calculator.recyclingRate}
-                        onChange={(e) => updateCalculator({ recyclingRate: parseInt(e.target.value) })}
+                        onChange={(e) =>
+                          updateCalculator({ recyclingRate: parseInt(e.target.value) })
+                        }
                         className="w-full accent-eco-green bg-white/5 rounded-lg appearance-none h-1.5 cursor-pointer eco-slider"
                       />
                       <div className="flex justify-between text-[10px] text-eco-muted">
@@ -656,14 +736,19 @@ const Calculator: React.FC = () => {
                 { label: 'Transportation', value: liveBreakdown.transport, color: 'bg-indigo-500' },
                 { label: 'Home Energy', value: liveBreakdown.energy, color: 'bg-blue-500' },
                 { label: 'Diet & Food', value: liveBreakdown.diet, color: 'bg-eco-green' },
-                { label: 'Waste', value: liveBreakdown.waste, color: 'bg-amber-500' }
+                { label: 'Waste', value: liveBreakdown.waste, color: 'bg-amber-500' },
               ].map((item, i) => {
-                const percent = liveBreakdown.total > 0 ? Math.round((item.value / liveBreakdown.total) * 100) : 0;
+                const percent =
+                  liveBreakdown.total > 0
+                    ? Math.round((item.value / liveBreakdown.total) * 100)
+                    : 0;
                 return (
                   <div key={i} className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-[10px]">
                       <span className="text-eco-muted font-medium">{item.label}</span>
-                      <span className="text-white font-bold font-outfit">{item.value} t ({percent}%)</span>
+                      <span className="text-white font-bold font-outfit">
+                        {item.value} t ({percent}%)
+                      </span>
                     </div>
                     <div className="w-full bg-white/5 rounded-full h-1 overflow-hidden">
                       <div
@@ -679,7 +764,10 @@ const Calculator: React.FC = () => {
             <div className="w-full h-px bg-white/5 my-2"></div>
 
             <div className="text-[10.5px] text-eco-muted leading-relaxed">
-              Target emission ceiling is <span className="text-white font-semibold">3.5 metric tons</span>. Swapping commutes to hybrid/EV, adjusting home HVAC, eating vegetarian/vegan, and recycling sorts can lower your live projections.
+              Target emission ceiling is{' '}
+              <span className="text-white font-semibold">3.5 metric tons</span>. Swapping commutes
+              to hybrid/EV, adjusting home HVAC, eating vegetarian/vegan, and recycling sorts can
+              lower your live projections.
             </div>
           </div>
         </div>

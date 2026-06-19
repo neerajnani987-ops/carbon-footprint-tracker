@@ -37,7 +37,8 @@ class ErrorBoundary extends Component<Props, State> {
           </div>
           <h2 className="text-2xl font-outfit font-black text-white mb-3">Something Went Wrong</h2>
           <p className="text-eco-muted text-xs md:text-sm max-w-sm leading-relaxed mb-6">
-            EcoTrace encountered an unexpected error while rendering this page. No worries, your local metrics remain safe.
+            EcoTrace encountered an unexpected error while rendering this page. No worries, your
+            local metrics remain safe.
           </p>
           <button
             onClick={this.handleReload}

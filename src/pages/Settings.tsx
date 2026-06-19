@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useAppState } from '../hooks/useAppState';
-import {
-  User,
-  Globe,
-  Sun,
-  Moon,
-  Bell,
-  Save,
-} from 'lucide-react';
+import { User, Globe, Sun, Moon, Bell, Save } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const { t, language, setLanguage } = useLanguage();
@@ -27,13 +20,17 @@ const Settings: React.FC = () => {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     // Save language context
     setLanguage(langVal);
 
     setTimeout(() => {
       setIsSaving(false);
-      triggerToast('Settings Saved', 'Your configurations have been updated successfully.', 'check');
+      triggerToast(
+        'Settings Saved',
+        'Your configurations have been updated successfully.',
+        'check'
+      );
     }, 600);
   };
 
@@ -42,7 +39,8 @@ const Settings: React.FC = () => {
       <div>
         <h2 className="text-white font-bold font-outfit text-xl mb-1">{t('settings.title')}</h2>
         <p className="text-xs text-eco-muted leading-relaxed">
-          Configure your personal details, default application languages, and notification schedules.
+          Configure your personal details, default application languages, and notification
+          schedules.
         </p>
       </div>
 
@@ -55,7 +53,10 @@ const Settings: React.FC = () => {
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="settings-name" className="text-[10px] font-semibold text-eco-muted uppercase tracking-wider">
+            <label
+              htmlFor="settings-name"
+              className="text-[10px] font-semibold text-eco-muted uppercase tracking-wider"
+            >
               Full Name
             </label>
             <input
@@ -68,7 +69,10 @@ const Settings: React.FC = () => {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="settings-email" className="text-[10px] font-semibold text-eco-muted uppercase tracking-wider">
+            <label
+              htmlFor="settings-email"
+              className="text-[10px] font-semibold text-eco-muted uppercase tracking-wider"
+            >
               Email Address
             </label>
             <input
@@ -124,7 +128,9 @@ const Settings: React.FC = () => {
                 type="button"
                 onClick={() => setThemeMode('dark')}
                 className={`p-2 rounded-lg flex items-center justify-center transition-all ${
-                  themeMode === 'dark' ? 'bg-eco-green text-white shadow' : 'text-eco-muted hover:text-white'
+                  themeMode === 'dark'
+                    ? 'bg-eco-green text-white shadow'
+                    : 'text-eco-muted hover:text-white'
                 }`}
                 title="Dark Mode"
               >
@@ -134,7 +140,9 @@ const Settings: React.FC = () => {
                 type="button"
                 onClick={() => setThemeMode('light')}
                 className={`p-2 rounded-lg flex items-center justify-center transition-all ${
-                  themeMode === 'light' ? 'bg-eco-green text-white shadow' : 'text-eco-muted hover:text-white'
+                  themeMode === 'light'
+                    ? 'bg-eco-green text-white shadow'
+                    : 'text-eco-muted hover:text-white'
                 }`}
                 title="Light Mode"
               >
@@ -149,7 +157,9 @@ const Settings: React.FC = () => {
       <div className="glass-card p-6 border border-white/5 flex flex-col gap-4">
         <div className="flex items-center gap-2 pb-2.5 border-b border-white/5">
           <Bell className="w-5 h-5 text-eco-green" />
-          <h3 className="text-white font-bold font-outfit text-sm">{t('settings.notifications')}</h3>
+          <h3 className="text-white font-bold font-outfit text-sm">
+            {t('settings.notifications')}
+          </h3>
         </div>
 
         <div className="flex flex-col gap-4.5">

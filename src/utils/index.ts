@@ -18,7 +18,9 @@ export const sanitizeText = (text: string): string => {
 /**
  * Validates and clamps calculator inputs to prevent unrealistic values or negative submissions
  */
-export const validateCalculatorState = (state: Partial<CalculatorState>): Partial<CalculatorState> => {
+export const validateCalculatorState = (
+  state: Partial<CalculatorState>
+): Partial<CalculatorState> => {
   const validated: Partial<CalculatorState> = {};
 
   if (state.vehicleType !== undefined) {

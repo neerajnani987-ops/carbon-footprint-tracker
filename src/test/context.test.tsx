@@ -33,26 +33,28 @@ const TestComponent: React.FC = () => {
       <div data-testid="last-logged-date">{lastLoggedDate || 'none'}</div>
       <div data-testid="vehicle-miles">{calculator.vehicleMiles}</div>
       <div data-testid="recycling-rate">{calculator.recyclingRate}</div>
-      
+
       <button
         data-testid="update-calc"
-        onClick={() => updateCalculator({ vehicleMiles: 150, recyclingRate: 80, electricBill: 10, gasBill: 5, cleanEnergyShare: 100 })}
+        onClick={() =>
+          updateCalculator({
+            vehicleMiles: 150,
+            recyclingRate: 80,
+            electricBill: 10,
+            gasBill: 5,
+            cleanEnergyShare: 100,
+          })
+        }
       >
         Update Calc
       </button>
       <button data-testid="save-calc" onClick={saveCalculatorResults}>
         Save Calc
       </button>
-      <button
-        data-testid="log-commute"
-        onClick={() => submitDailyLog(['bike-walk-commute'])}
-      >
+      <button data-testid="log-commute" onClick={() => submitDailyLog(['bike-walk-commute'])}>
         Log Commute
       </button>
-      <button
-        data-testid="log-meatless"
-        onClick={() => submitDailyLog(['meatless-meals'])}
-      >
+      <button data-testid="log-meatless" onClick={() => submitDailyLog(['meatless-meals'])}>
         Log Meatless
       </button>
       <button
@@ -61,13 +63,9 @@ const TestComponent: React.FC = () => {
       >
         Log Combo
       </button>
-      
-      <div data-testid="unlocked-badges">
-        {Object.keys(unlockedBadges).join(',')}
-      </div>
-      <div data-testid="daily-logs-count">
-        {Object.keys(dailyLogs).length}
-      </div>
+
+      <div data-testid="unlocked-badges">{Object.keys(unlockedBadges).join(',')}</div>
+      <div data-testid="daily-logs-count">{Object.keys(dailyLogs).length}</div>
     </div>
   );
 };
@@ -91,11 +89,7 @@ const MockAuthProvider: React.FC<ProviderWrapperProps> = ({ children, user }) =>
     signInWithGoogle: async () => true,
   };
 
-  return (
-    <AuthContext.Provider value={mockValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={mockValue}>{children}</AuthContext.Provider>;
 };
 
 describe('AppStateContext State Mutations & Badges', () => {
@@ -263,7 +257,7 @@ describe('AppStateContext State Mutations & Badges', () => {
     });
 
     const dailyLogsMock: Record<string, string[]> = {};
-    dates.forEach(d => {
+    dates.forEach((d) => {
       dailyLogsMock[d] = ['meatless-meals'];
     });
 

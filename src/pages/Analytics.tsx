@@ -15,13 +15,7 @@ import {
   Title,
   Filler,
 } from 'chart.js';
-import {
-  TrendingDown,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle,
-  Lightbulb,
-} from 'lucide-react';
+import { TrendingDown, TrendingUp, AlertCircle, CheckCircle, Lightbulb } from 'lucide-react';
 
 ChartJS.register(
   ArcElement,
@@ -100,21 +94,21 @@ const Analytics: React.FC = () => {
     const actionSavings: Record<string, number> = {
       'transit-commute': 2.5,
       'bike-walk-commute': 3.2,
-      'carpool': 1.8,
+      carpool: 1.8,
       'energy-standby': 0.3,
       'dryer-avoid': 0.8,
       'temp-thermostat': 1.2,
       'meatless-meals': 1.5,
       'zero-food-waste': 0.5,
       'plastic-free': 0.2,
-      'composting': 0.4,
+      composting: 0.4,
     };
 
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
+
       const label = d.toLocaleDateString(language === 'te' ? 'te-IN' : 'en-US', {
         month: 'short',
         day: 'numeric',
@@ -181,23 +175,26 @@ const Analytics: React.FC = () => {
       <div>
         <h2 className="text-white font-bold font-outfit text-xl mb-1">Advanced Carbon Analytics</h2>
         <p className="text-xs text-eco-muted leading-relaxed">
-          Compare your emissions profile against sustainability targets and evaluate your daily habits timeline.
+          Compare your emissions profile against sustainability targets and evaluate your daily
+          habits timeline.
         </p>
       </div>
 
       {!hasCompletedCalc ? (
         <div className="glass-card p-12 text-center border border-white/5 flex flex-col items-center justify-center">
           <AlertCircle className="w-12 h-12 text-eco-muted/30 mb-3" />
-          <h3 className="font-outfit font-bold text-white text-lg mb-2">No Calculator Metrics Found</h3>
+          <h3 className="font-outfit font-bold text-white text-lg mb-2">
+            No Calculator Metrics Found
+          </h3>
           <p className="text-xs text-eco-muted max-w-md leading-relaxed">
-            Please complete the Carbon Footprint Calculator to populate your category emission reports, benchmarks comparison, and trend graphics.
+            Please complete the Carbon Footprint Calculator to populate your category emission
+            reports, benchmarks comparison, and trend graphics.
           </p>
         </div>
       ) : (
         <>
           {/* Comparison and stats grids */}
           <div className="grid lg:grid-cols-3 gap-6">
-            
             {/* National Target Card */}
             <div className="glass-card p-6 border border-white/5 flex flex-col justify-between lg:col-span-1">
               <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
@@ -211,7 +208,7 @@ const Analytics: React.FC = () => {
                   </span>
                   <span className="text-xs text-eco-muted">tons / yr</span>
                 </div>
-                
+
                 {targetDiffPercentage <= 0 ? (
                   <div className="flex items-center gap-1.5 text-xs text-eco-green font-semibold">
                     <TrendingDown className="w-4 h-4 shrink-0" />
@@ -243,12 +240,10 @@ const Analytics: React.FC = () => {
                 <Bar data={barChartData} options={barChartOptions} />
               </div>
             </div>
-
           </div>
 
           {/* Timeline and Insights Row */}
           <div className="grid lg:grid-cols-3 gap-6">
-            
             {/* Daily Tracker Savings Chart */}
             <div className="glass-card p-6 border border-white/5 lg:col-span-2 flex flex-col justify-between">
               <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase mb-4">
@@ -282,7 +277,7 @@ const Analytics: React.FC = () => {
                   <div>
                     <h5 className="text-xs font-bold text-white">Daily Commutes</h5>
                     <p className="text-[10.5px] text-eco-muted leading-relaxed mt-1">
-                      {calculator.vehicleType === 'ev' 
+                      {calculator.vehicleType === 'ev'
                         ? 'By driving an EV, your vehicle commutes save 1.7 tons of CO₂ annually compared to gasoline equivalents.'
                         : 'Your weekly vehicle travel is a primary source of emissions. Try working from home or riding transit.'}
                     </p>
@@ -318,7 +313,6 @@ const Analytics: React.FC = () => {
                 </div>
               </div>
             </div>
-
           </div>
         </>
       )}

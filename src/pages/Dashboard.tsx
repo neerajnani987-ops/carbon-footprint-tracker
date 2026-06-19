@@ -25,7 +25,14 @@ import {
   ArrowRight,
   Flame,
   TrendingDown,
-  Gauge
+  Gauge,
+  Compass,
+  Zap,
+  Bike,
+  Salad,
+  Trash2,
+  Award,
+  Lock,
 } from 'lucide-react';
 
 ChartJS.register(
@@ -40,6 +47,29 @@ ChartJS.register(
   Filler
 );
 
+const BadgeIcon: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
+  switch (name) {
+    case 'compass':
+      return <Compass className={className} />;
+    case 'zap':
+      return <Zap className={className} />;
+    case 'bike':
+      return <Bike className={className} />;
+    case 'salad':
+      return <Salad className={className} />;
+    case 'trash-2':
+      return <Trash2 className={className} />;
+    case 'award':
+      return <Award className={className} />;
+    case 'flame':
+      return <Flame className={className} />;
+    case 'sprout':
+      return <Sprout className={className} />;
+    default:
+      return <Award className={className} />;
+  }
+};
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -49,6 +79,8 @@ const Dashboard: React.FC = () => {
     quests,
     dailyLogs,
     calculateBreakdown,
+    unlockedBadges,
+    badges,
   } = useAppState();
 
   const [timeFilter, setTimeFilter] = useState<'7' | '30'>('7');
@@ -64,22 +96,90 @@ const Dashboard: React.FC = () => {
     return parseFloat((totalSavings / 22.0).toFixed(1)); // Tree absorbs 22kg/yr
   }, [totalSavings]);
 
+  const unlockedList = useMemo(() => {
+    return badges.filter((b) => !!unlockedBadges[b.id]);
+  }, [badges, unlockedBadges]);
+
   // Dynamic Sustainability Grade Computation (A+ to D-)
   const gradeInfo = useMemo(() => {
-    if (!hasCompletedCalc) return { grade: '—', desc: 'Complete assessment to unlock.', color: 'text-eco-muted border-white/5 bg-white/5' };
+    if (!hasCompletedCalc)
+      return {
+        grade: '—',
+        desc: 'Complete assessment to unlock.',
+        color: 'text-eco-muted border-white/5 bg-white/5',
+      };
     const total = breakdown.total;
-    if (total <= 2.0) return { grade: 'A+', desc: 'Exceptional carbon stewardship!', color: 'text-eco-green border-eco-green/30 bg-eco-green/5' };
-    if (total <= 3.0) return { grade: 'A', desc: 'Outstanding green champion!', color: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/5' };
-    if (total <= 3.5) return { grade: 'A-', desc: 'Excellent conservation effort.', color: 'text-teal-400 border-teal-400/30 bg-teal-400/5' };
-    if (total <= 4.5) return { grade: 'B+', desc: 'Good work, close to climate targets.', color: 'text-blue-400 border-blue-400/30 bg-blue-400/5' };
-    if (total <= 5.5) return { grade: 'B', desc: 'Moderate emissions. Trimming advised.', color: 'text-indigo-400 border-indigo-400/30 bg-indigo-400/5' };
-    if (total <= 6.5) return { grade: 'B-', desc: 'Slightly high footprint. Swap habits.', color: 'text-purple-400 border-purple-400/30 bg-purple-400/5' };
-    if (total <= 8.0) return { grade: 'C+', desc: 'Above average. Identify quick savings.', color: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5' };
-    if (total <= 10.0) return { grade: 'C', desc: 'High emissions. Adjustments needed.', color: 'text-amber-500 border-amber-500/30 bg-amber-500/5' };
-    if (total <= 12.0) return { grade: 'C-', desc: 'Heavy emissions. Commute & energy high.', color: 'text-orange-500 border-orange-500/30 bg-orange-500/5' };
-    if (total <= 15.0) return { grade: 'D+', desc: 'Severe environmental footprint.', color: 'text-red-400 border-red-400/30 bg-red-400/5' };
-    if (total <= 20.0) return { grade: 'D', desc: 'Extremely high emissions.', color: 'text-red-500 border-red-500/35 bg-red-500/5' };
-    return { grade: 'D-', desc: 'Critical footprint. Immediate action required.', color: 'text-rose-600 border-rose-600/30 bg-rose-600/5' };
+    if (total <= 2.0)
+      return {
+        grade: 'A+',
+        desc: 'Exceptional carbon stewardship!',
+        color: 'text-eco-green border-eco-green/30 bg-eco-green/5',
+      };
+    if (total <= 3.0)
+      return {
+        grade: 'A',
+        desc: 'Outstanding green champion!',
+        color: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/5',
+      };
+    if (total <= 3.5)
+      return {
+        grade: 'A-',
+        desc: 'Excellent conservation effort.',
+        color: 'text-teal-400 border-teal-400/30 bg-teal-400/5',
+      };
+    if (total <= 4.5)
+      return {
+        grade: 'B+',
+        desc: 'Good work, close to climate targets.',
+        color: 'text-blue-400 border-blue-400/30 bg-blue-400/5',
+      };
+    if (total <= 5.5)
+      return {
+        grade: 'B',
+        desc: 'Moderate emissions. Trimming advised.',
+        color: 'text-indigo-400 border-indigo-400/30 bg-indigo-400/5',
+      };
+    if (total <= 6.5)
+      return {
+        grade: 'B-',
+        desc: 'Slightly high footprint. Swap habits.',
+        color: 'text-purple-400 border-purple-400/30 bg-purple-400/5',
+      };
+    if (total <= 8.0)
+      return {
+        grade: 'C+',
+        desc: 'Above average. Identify quick savings.',
+        color: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5',
+      };
+    if (total <= 10.0)
+      return {
+        grade: 'C',
+        desc: 'High emissions. Adjustments needed.',
+        color: 'text-amber-500 border-amber-500/30 bg-amber-500/5',
+      };
+    if (total <= 12.0)
+      return {
+        grade: 'C-',
+        desc: 'Heavy emissions. Commute & energy high.',
+        color: 'text-orange-500 border-orange-500/30 bg-orange-500/5',
+      };
+    if (total <= 15.0)
+      return {
+        grade: 'D+',
+        desc: 'Severe environmental footprint.',
+        color: 'text-red-400 border-red-400/30 bg-red-400/5',
+      };
+    if (total <= 20.0)
+      return {
+        grade: 'D',
+        desc: 'Extremely high emissions.',
+        color: 'text-red-500 border-red-500/35 bg-red-500/5',
+      };
+    return {
+      grade: 'D-',
+      desc: 'Critical footprint. Immediate action required.',
+      color: 'text-rose-600 border-rose-600/30 bg-rose-600/5',
+    };
   }, [hasCompletedCalc, breakdown.total]);
 
   // Comparison with average global citizen (4.7 metric tons per capita per year)
@@ -89,7 +189,7 @@ const Dashboard: React.FC = () => {
     const diff = ((breakdown.total - avgGlobal) / avgGlobal) * 100;
     return {
       percent: Math.abs(Math.round(diff)),
-      efficient: diff <= 0
+      efficient: diff <= 0,
     };
   }, [hasCompletedCalc, breakdown.total]);
 
@@ -142,7 +242,8 @@ const Dashboard: React.FC = () => {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => ` ${context.label}: ${context.raw} t CO₂e`,
+          label: (context: { label: string; raw: unknown }) =>
+            ` ${context.label}: ${context.raw} t CO₂e`,
         },
       },
     },
@@ -156,14 +257,14 @@ const Dashboard: React.FC = () => {
     const actionSavings: Record<string, number> = {
       'transit-commute': 2.5,
       'bike-walk-commute': 3.2,
-      'carpool': 1.8,
+      carpool: 1.8,
       'energy-standby': 0.3,
       'dryer-avoid': 0.8,
       'temp-thermostat': 1.2,
       'meatless-meals': 1.5,
       'zero-food-waste': 0.5,
       'plastic-free': 0.2,
-      'composting': 0.4,
+      composting: 0.4,
     };
 
     const daysCount = parseInt(timeFilter);
@@ -172,7 +273,7 @@ const Dashboard: React.FC = () => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      
+
       const label = d.toLocaleDateString(language === 'te' ? 'te-IN' : 'en-US', {
         month: 'short',
         day: 'numeric',
@@ -239,7 +340,7 @@ const Dashboard: React.FC = () => {
   const recommendations = useMemo(() => {
     if (!hasCompletedCalc) return [];
     const list = [];
-    
+
     if (breakdown.transport > 2.0) {
       list.push({
         cat: 'Transportation',
@@ -303,7 +404,6 @@ const Dashboard: React.FC = () => {
     >
       {/* Overview stats grids */}
       <div className="grid lg:grid-cols-3 gap-6">
-        
         {/* Ring Projected annual footprint card */}
         <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col justify-between">
           <div className="flex justify-between items-center mb-4">
@@ -355,7 +455,6 @@ const Dashboard: React.FC = () => {
 
         {/* Action summaries subgrid */}
         <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-          
           {/* Stat 1: Savings */}
           <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
             <div className="w-12 h-12 rounded-xl bg-eco-green/15 flex items-center justify-center border border-eco-green/25 shrink-0">
@@ -375,7 +474,9 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Dynamic Sustainability Grade & Global Comparison */}
-          <div className={`glass-card p-5.5 border flex gap-4 items-center transition-all ${gradeInfo.color}`}>
+          <div
+            className={`glass-card p-5.5 border flex gap-4 items-center transition-all ${gradeInfo.color}`}
+          >
             <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
               <Gauge className="w-6 h-6" />
             </div>
@@ -436,21 +537,17 @@ const Dashboard: React.FC = () => {
               <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
                 {t('dashboard.treeOffset')}
               </span>
-              <div className="text-xl font-bold font-outfit text-white mt-0.5">
-                {treeOffset}
-              </div>
+              <div className="text-xl font-bold font-outfit text-white mt-0.5">{treeOffset}</div>
               <span className="text-[10px] text-eco-muted mt-1 block">
                 {t('dashboard.treeDesc')}
               </span>
             </div>
           </div>
-
         </div>
       </div>
 
       {/* Interactive Charts section */}
       <div className="grid lg:grid-cols-2 gap-6">
-        
         {/* Doughnut breakdown chart */}
         <div className="glass-card p-6 border border-white/5 flex flex-col justify-between">
           <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase mb-4">
@@ -488,7 +585,9 @@ const Dashboard: React.FC = () => {
               <button
                 onClick={() => setTimeFilter('7')}
                 className={`px-2.5 py-1 rounded-md transition-all ${
-                  timeFilter === '7' ? 'bg-eco-green text-white shadow' : 'text-eco-muted hover:text-white'
+                  timeFilter === '7'
+                    ? 'bg-eco-green text-white shadow'
+                    : 'text-eco-muted hover:text-white'
                 }`}
               >
                 7 Days
@@ -496,7 +595,9 @@ const Dashboard: React.FC = () => {
               <button
                 onClick={() => setTimeFilter('30')}
                 className={`px-2.5 py-1 rounded-md transition-all ${
-                  timeFilter === '30' ? 'bg-eco-green text-white shadow' : 'text-eco-muted hover:text-white'
+                  timeFilter === '30'
+                    ? 'bg-eco-green text-white shadow'
+                    : 'text-eco-muted hover:text-white'
                 }`}
               >
                 30 Days
@@ -523,62 +624,119 @@ const Dashboard: React.FC = () => {
             )}
           </div>
         </div>
-
       </div>
 
-      {/* AI Insights and recommendations panel */}
-      <div className="glass-card p-6 border border-white/5">
-        <div className="flex items-center gap-2 mb-6">
-          <Sparkles className="w-5 h-5 text-eco-green animate-pulse" />
-          <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
-            {t('dashboard.ecoInsights')}
-          </h3>
-        </div>
+      {/* Badges and Insights Grid */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Unlocked Badges Panel */}
+        <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
+                {t('dashboard.unlockedBadges')}
+              </h3>
+              <p className="text-[10px] text-eco-muted mt-0.5">{t('dashboard.badgesDesc')}</p>
+            </div>
+            <span className="px-2 py-0.5 bg-eco-green/10 text-eco-green border border-eco-green/20 rounded text-[10px] font-bold font-outfit">
+              {unlockedList.length} / {badges.length}
+            </span>
+          </div>
 
-        <div className="flex flex-col gap-4">
-          {hasCompletedCalc ? (
-            recommendations.map((rec, i) => (
-              <div
-                key={i}
-                className="p-4 bg-eco-forest/20 border border-white/5 hover:border-white/10 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[10px] px-2 py-0.5 bg-white/5 rounded border border-white/10 font-bold uppercase tracking-wider text-eco-muted">
-                      {rec.cat}
-                    </span>
-                    <span className="text-[10px] font-bold text-eco-green uppercase tracking-wide">
-                      {rec.impact}
+          <div className="flex-1 flex flex-col justify-center">
+            {unlockedList.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3 my-2">
+                {unlockedList.slice(0, 5).map((badge) => (
+                  <div
+                    key={badge.id}
+                    title={badge.name}
+                    className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center group hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-eco-green/10 border border-eco-green/20 text-eco-green flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                      <BadgeIcon name={badge.icon} className="w-5 h-5 stroke-[1.8]" />
+                    </div>
+                    <span className="text-[9px] font-semibold text-white truncate w-full max-w-[64px]">
+                      {badge.name}
                     </span>
                   </div>
-                  <h4 className="text-white font-bold text-sm font-outfit mb-1">{rec.title}</h4>
-                  <p className="text-xs text-eco-muted leading-relaxed">{rec.desc}</p>
-                </div>
-                <button
-                  onClick={() =>
-                    navigate(
-                      rec.cat === 'Transportation'
-                        ? '/calculator'
-                        : rec.cat === 'Home Energy'
-                        ? '/calculator'
-                        : '/tracker'
-                    )
-                  }
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-xs font-semibold font-outfit transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                ))}
+                <div
+                  onClick={() => navigate('/challenges')}
+                  className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center cursor-pointer hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
                 >
-                  <span>Configure</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-eco-muted flex items-center justify-center mb-1">
+                    <Award className="w-5 h-5 stroke-[1.8]" />
+                  </div>
+                  <span className="text-[9px] font-bold text-eco-green">View All</span>
+                </div>
               </div>
-            ))
-          ) : (
-            <div className="p-8 text-center text-xs text-eco-muted leading-relaxed flex flex-col items-center justify-center">
-              <Sparkles className="w-8 h-8 text-eco-muted/30 mb-2" />
-              <span>
-                Please complete the Carbon Footprint Calculator to unlock smart recommendations customized for your metrics.
-              </span>
-            </div>
-          )}
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center py-6">
+                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-eco-muted/30 flex items-center justify-center mb-3">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <p className="text-xs text-eco-muted max-w-[200px]">
+                  Calculate your footprint and complete quests to earn badges.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Insights and recommendations panel */}
+        <div className="glass-card p-6 border border-white/5 lg:col-span-2 flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-eco-green animate-pulse" />
+            <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
+              {t('dashboard.ecoInsights')}
+            </h3>
+          </div>
+
+          <div className="flex flex-col gap-4 flex-1 justify-center">
+            {hasCompletedCalc ? (
+              recommendations.slice(0, 2).map((rec, i) => (
+                <div
+                  key={i}
+                  className="p-3.5 bg-eco-forest/20 border border-white/5 hover:border-white/10 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[9px] px-1.5 py-0.2 bg-white/5 rounded border border-white/10 font-bold uppercase tracking-wider text-eco-muted">
+                        {rec.cat}
+                      </span>
+                      <span className="text-[9px] font-bold text-eco-green uppercase tracking-wide">
+                        {rec.impact}
+                      </span>
+                    </div>
+                    <h4 className="text-white font-bold text-xs font-outfit mb-0.5">{rec.title}</h4>
+                    <p className="text-[11px] text-eco-muted leading-relaxed">{rec.desc}</p>
+                  </div>
+                  <button
+                    onClick={() =>
+                      navigate(
+                        rec.cat === 'Transportation'
+                          ? '/calculator'
+                          : rec.cat === 'Home Energy'
+                            ? '/calculator'
+                            : '/tracker'
+                      )
+                    }
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-[11px] font-semibold font-outfit transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                  >
+                    <span>Configure</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-xs text-eco-muted leading-relaxed flex flex-col items-center justify-center">
+                <Sparkles className="w-8 h-8 text-eco-muted/30 mb-2" />
+                <span>
+                  Please complete the Carbon Footprint Calculator to unlock smart recommendations
+                  customized for your metrics.
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

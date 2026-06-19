@@ -85,19 +85,36 @@
 
 /* Keyframes for pulse and orbits */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 @keyframes orbit {
-  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-  to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+  from {
+    transform: rotate(0deg) translateX(120px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(120px) rotate(-360deg);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.05); }
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
 }
 
 .animate-float {
@@ -164,12 +181,14 @@
   left: 50%;
   margin-left: -100px;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   transform: translateY(10px);
   pointer-events: none;
   font-size: 11px;
   line-height: 1.4;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .eco-tooltip:hover .tooltip-text,
@@ -200,7 +219,9 @@
   cursor: pointer;
   border: 2px solid #ffffff;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-  transition: transform 0.1s, background-color 0.2s;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
 }
 
 .eco-slider::-webkit-slider-thumb:hover {
@@ -216,7 +237,9 @@
   cursor: pointer;
   border: 2px solid #ffffff;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-  transition: transform 0.1s, background-color 0.2s;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
 }
 
 .eco-slider::-moz-range-thumb:hover {

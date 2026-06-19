@@ -43,7 +43,6 @@ const Challenges: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-      
       {/* Badges Achievements grid */}
       <div className="flex flex-col gap-5">
         <div>
@@ -55,7 +54,7 @@ const Challenges: React.FC = () => {
           {badges.map((badge) => {
             const unlockDate = unlockedBadges[badge.id];
             const isUnlocked = !!unlockDate;
-            
+
             return (
               <div
                 key={badge.id}
@@ -72,17 +71,23 @@ const Challenges: React.FC = () => {
                   </div>
                 )}
 
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center border mb-4 shrink-0 transition-all duration-300 ${
-                  isUnlocked
-                    ? 'bg-eco-green/15 text-eco-green border-eco-green/20'
-                    : 'bg-white/5 text-eco-muted border-white/10'
-                }`}>
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center border mb-4 shrink-0 transition-all duration-300 ${
+                    isUnlocked
+                      ? 'bg-eco-green/15 text-eco-green border-eco-green/20'
+                      : 'bg-white/5 text-eco-muted border-white/10'
+                  }`}
+                >
                   <BadgeIcon name={badge.icon} className="w-7 h-7 stroke-[1.8]" />
                 </div>
 
                 <div>
-                  <h4 className="text-white font-bold font-outfit text-sm leading-none mb-2">{badge.name}</h4>
-                  <p className="text-[10.5px] text-eco-muted leading-relaxed max-w-[180px] mb-3">{badge.desc}</p>
+                  <h4 className="text-white font-bold font-outfit text-sm leading-none mb-2">
+                    {badge.name}
+                  </h4>
+                  <p className="text-[10.5px] text-eco-muted leading-relaxed max-w-[180px] mb-3">
+                    {badge.desc}
+                  </p>
                 </div>
 
                 {isUnlocked ? (
@@ -104,7 +109,9 @@ const Challenges: React.FC = () => {
       {/* Quests active challenges */}
       <div className="flex flex-col gap-5 border-t border-white/5 pt-8">
         <div>
-          <h2 className="text-white font-bold font-outfit text-xl mb-1">{t('quests.activeQuests')}</h2>
+          <h2 className="text-white font-bold font-outfit text-xl mb-1">
+            {t('quests.activeQuests')}
+          </h2>
           <p className="text-xs text-eco-muted leading-relaxed">{t('quests.activeQuestsDesc')}</p>
         </div>
 
@@ -112,7 +119,7 @@ const Challenges: React.FC = () => {
           {quests.map((quest) => {
             const isCompleted = quest.current >= quest.target;
             const progressPercent = Math.round((quest.current / quest.target) * 100);
-            
+
             return (
               <div
                 key={quest.id}
@@ -122,8 +129,12 @@ const Challenges: React.FC = () => {
               >
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h3 className="text-white font-bold font-outfit text-base mb-1">{quest.name}</h3>
-                    <p className="text-[11.5px] text-eco-muted leading-relaxed max-w-sm">{quest.desc}</p>
+                    <h3 className="text-white font-bold font-outfit text-base mb-1">
+                      {quest.name}
+                    </h3>
+                    <p className="text-[11.5px] text-eco-muted leading-relaxed max-w-sm">
+                      {quest.desc}
+                    </p>
                   </div>
                   <div className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] text-eco-muted shrink-0 leading-none">
                     Reward: Badge
@@ -151,7 +162,6 @@ const Challenges: React.FC = () => {
           })}
         </div>
       </div>
-
     </div>
   );
 };

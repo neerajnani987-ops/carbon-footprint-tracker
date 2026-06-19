@@ -27,7 +27,7 @@ const ForgotPassword: React.FC = () => {
       if (isSent) {
         setSuccess(true);
       }
-    } catch (err) {
+    } catch {
       setLocalError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -47,7 +47,9 @@ const ForgotPassword: React.FC = () => {
             <div className="p-2.5 bg-eco-green/10 rounded-xl">
               <Leaf className="w-8 h-8 text-eco-green" />
             </div>
-            <span className="font-outfit font-black text-2xl tracking-wider text-white">EcoTrace</span>
+            <span className="font-outfit font-black text-2xl tracking-wider text-white">
+              EcoTrace
+            </span>
           </Link>
           <p className="text-eco-muted text-sm text-center">
             Recover your account password to continue logging eco-savings.
@@ -57,7 +59,10 @@ const ForgotPassword: React.FC = () => {
         {/* Auth Card */}
         <div className="glass-card p-8 border border-white/5">
           <div className="flex items-center gap-2 mb-6">
-            <Link to="/signin" className="p-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-eco-muted hover:text-white transition-all">
+            <Link
+              to="/signin"
+              className="p-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-eco-muted hover:text-white transition-all"
+            >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <h2 className="font-outfit font-bold text-xl text-white">Reset Password</h2>
@@ -70,7 +75,8 @@ const ForgotPassword: React.FC = () => {
               </div>
               <h3 className="font-outfit font-bold text-white text-lg mb-2">Instructions Sent</h3>
               <p className="text-xs text-eco-muted leading-relaxed mb-6">
-                If an account exists for <strong className="text-white">{email}</strong>, we have sent password reset instructions to that address.
+                If an account exists for <strong className="text-white">{email}</strong>, we have
+                sent password reset instructions to that address.
               </p>
               <Link
                 to="/signin"
@@ -91,7 +97,10 @@ const ForgotPassword: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="email" className="text-xs font-semibold text-eco-muted uppercase tracking-wider">
+                  <label
+                    htmlFor="email"
+                    className="text-xs font-semibold text-eco-muted uppercase tracking-wider"
+                  >
                     Email Address
                   </label>
                   <div className="relative">

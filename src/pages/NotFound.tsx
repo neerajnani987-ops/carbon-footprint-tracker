@@ -17,7 +17,7 @@ const NotFound: React.FC = () => {
         <motion.div
           initial={{ scale: 0.8, rotate: -15 }}
           animate={{ scale: [1, 1.1, 1], rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           className="w-24 h-24 rounded-full bg-eco-green/10 border border-eco-green/20 flex items-center justify-center text-eco-green mb-8 shadow-lg shadow-eco-green/5"
         >
           <Leaf className="w-12 h-12 stroke-[1.5]" />
@@ -33,10 +33,11 @@ const NotFound: React.FC = () => {
         <h1 className="text-3xl md:text-4xl font-outfit font-black text-white leading-tight mb-4">
           Lost in the Forest?
         </h1>
-        
+
         {/* Description */}
         <p className="text-eco-muted text-xs md:text-sm leading-relaxed mb-8">
-          The path you are looking for does not exist or has been cleared. Let's redirect you back to known preservation coordinates.
+          The path you are looking for does not exist or has been cleared. Let&apos;s redirect you
+          back to known preservation coordinates.
         </p>
 
         {/* Redirect Button */}
