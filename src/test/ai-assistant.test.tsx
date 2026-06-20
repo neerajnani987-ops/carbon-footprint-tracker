@@ -30,12 +30,13 @@ describe('AIAssistant Page UI & Interactions', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /AI Sustainability Assistant/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /AI Sustainability Assistant/i })
+    ).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Ask me anything about/i)).toBeInTheDocument();
     expect(screen.getByText(/Hello Eco-Citizen/i)).toBeInTheDocument();
     expect(screen.getByText(/Suggested Questions/i)).toBeInTheDocument();
   });
-
 
   it('handles message submission and shows loading state and response after delay', async () => {
     vi.useFakeTimers();
@@ -84,12 +85,13 @@ describe('AIAssistant Page UI & Interactions', () => {
     });
 
     // AI response should be rendered immediately
-    expect(screen.getByText(/It looks like you haven't completed your Carbon Footprint Calculator yet/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/It looks like you haven't completed your Carbon Footprint Calculator yet/i)
+    ).toBeInTheDocument();
 
     expect(input).not.toBeDisabled();
     vi.useRealTimers();
   });
-
 
   it('handles suggested question clicks correctly', async () => {
     vi.useFakeTimers();
@@ -123,11 +125,10 @@ describe('AIAssistant Page UI & Interactions', () => {
       vi.advanceTimersByTime(1100);
     });
 
-    expect(screen.getByText(/Your household waste production is/i)).toBeInTheDocument();
+    expect(screen.getByText(/Your annual waste footprint is/i)).toBeInTheDocument();
 
     vi.useRealTimers();
   });
-
 
   it('handles key down Enter submission', async () => {
     vi.useFakeTimers();
@@ -142,7 +143,6 @@ describe('AIAssistant Page UI & Interactions', () => {
         </LanguageProvider>
       </MemoryRouter>
     );
-
 
     const input = screen.getByPlaceholderText(/Ask me anything about/i);
     fireEvent.change(input, { target: { value: 'How can I reduce my transport emissions?' } });
@@ -169,9 +169,8 @@ describe('AIAssistant Page UI & Interactions', () => {
       vi.advanceTimersByTime(1100);
     });
 
-    expect(screen.getByText(/Your primary transport is/i)).toBeInTheDocument();
+    expect(screen.getByText(/Your transportation emissions total/i)).toBeInTheDocument();
 
     vi.useRealTimers();
   });
-
 });

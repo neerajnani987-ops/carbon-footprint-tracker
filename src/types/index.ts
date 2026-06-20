@@ -67,6 +67,11 @@ export interface AppStateContextType {
   toasts: ToastMessage[];
   badges: Badge[];
   quests: Quest[];
+  monthlyGoal: number;
+  yearlyGoal: number;
+  ecoPoints: number;
+  updateGoals: (monthly: number, yearly: number) => void;
+  addEcoPoints: (points: number) => void;
   updateCalculator: (updates: Partial<CalculatorState>) => void;
   saveCalculatorResults: () => void;
   submitDailyLog: (actionIds: string[]) => void;
@@ -89,6 +94,9 @@ export interface AppStateData {
   lastLoggedDate?: string | null;
   hasCompletedCalc?: boolean;
   unlockedBadges?: Record<string, string>;
+  monthlyGoal?: number;
+  yearlyGoal?: number;
+  ecoPoints?: number;
 }
 
 export interface RegisteredUser {

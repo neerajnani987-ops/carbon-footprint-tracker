@@ -9,4 +9,3 @@ vi.mock('react-chartjs-2', () => ({
   Doughnut: () => null,
   Pie: () => null,
 }));
-

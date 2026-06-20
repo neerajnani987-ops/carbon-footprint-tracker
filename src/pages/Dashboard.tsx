@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppState } from '../hooks/useAppState';
 import { useLanguage } from '../hooks/useLanguage';
-import { Doughnut, Line } from 'react-chartjs-2';
+import { useAuth } from '../hooks/useAuth';
+import { Doughnut, Line, Bar } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
 import {
   Chart as ChartJS,
@@ -13,6 +14,7 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Filler,
 } from 'chart.js';
@@ -33,6 +35,8 @@ import {
   Trash2,
   Award,
   Lock,
+  Download,
+  Calendar,
 } from 'lucide-react';
 
 ChartJS.register(
@@ -43,6 +47,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Filler
 );
@@ -70,9 +75,33 @@ const BadgeIcon: React.FC<{ name: string; className?: string }> = ({ name, class
   }
 };
 
+const REMINDERS = [
+  {
+    type: 'energy',
+    text: 'Unplug chargers and appliances when not in use to avoid phantom power draws.',
+  },
+  {
+    type: 'waste',
+    text: 'Compost kitchen scraps to save organic nutrients and avoid landfill methane leaks.',
+  },
+  {
+    type: 'transport',
+    text: 'Commute via walking, cycling, or transit just 2 days a week to trim 400kg of CO₂ annually.',
+  },
+  {
+    type: 'water',
+    text: 'Take short 5-minute showers instead of baths to reduce heating energy and clean water waste.',
+  },
+  {
+    type: 'consumption',
+    text: 'Carry reusable bottles and metal straws to minimize plastic single-use pollution.',
+  },
+];
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const {
     hasCompletedCalc,
     totalSavings,
@@ -81,11 +110,134 @@ const Dashboard: React.FC = () => {
     calculateBreakdown,
     unlockedBadges,
     badges,
+    monthlyGoal,
+    yearlyGoal,
+    ecoPoints,
+    streak,
   } = useAppState();
 
   const [timeFilter, setTimeFilter] = useState<'7' | '30'>('7');
 
   const breakdown = useMemo(() => calculateBreakdown(), [calculateBreakdown]);
+
+  // Calculate monthly and yearly savings from tracker entries
+  const monthlySavings = useMemo(() => {
+    const currentMonthPrefix = new Date().toISOString().split('-').slice(0, 2).join('-'); // YYYY-MM
+    let sum = 0;
+    const actionSavings: Record<string, number> = {
+      'transit-commute': 2.5,
+      'bike-walk-commute': 3.2,
+      carpool: 1.8,
+      'energy-standby': 0.3,
+      'dryer-avoid': 0.8,
+      'temp-thermostat': 1.2,
+      'meatless-meals': 1.5,
+      'zero-food-waste': 0.5,
+      'plastic-free': 0.2,
+      composting: 0.4,
+    };
+    Object.entries(dailyLogs).forEach(([dateStr, actions]) => {
+      if (dateStr.startsWith(currentMonthPrefix)) {
+        actions.forEach((actId) => {
+          sum += actionSavings[actId] || 0;
+        });
+      }
+    });
+    return parseFloat(sum.toFixed(1));
+  }, [dailyLogs]);
+
+  const yearlySavings = useMemo(() => {
+    const currentYearPrefix = new Date().getFullYear().toString(); // YYYY
+    let sum = 0;
+    const actionSavings: Record<string, number> = {
+      'transit-commute': 2.5,
+      'bike-walk-commute': 3.2,
+      carpool: 1.8,
+      'energy-standby': 0.3,
+      'dryer-avoid': 0.8,
+      'temp-thermostat': 1.2,
+      'meatless-meals': 1.5,
+      'zero-food-waste': 0.5,
+      'plastic-free': 0.2,
+      composting: 0.4,
+    };
+    Object.entries(dailyLogs).forEach(([dateStr, actions]) => {
+      if (dateStr.startsWith(currentYearPrefix)) {
+        actions.forEach((actId) => {
+          sum += actionSavings[actId] || 0;
+        });
+      }
+    });
+    return parseFloat(sum.toFixed(1));
+  }, [dailyLogs]);
+
+  const monthlyProgress = useMemo(() => {
+    return Math.min(100, Math.round((monthlySavings / (monthlyGoal || 50)) * 100));
+  }, [monthlySavings, monthlyGoal]);
+
+  const yearlyProgress = useMemo(() => {
+    return Math.min(100, Math.round((yearlySavings / (yearlyGoal || 600)) * 100));
+  }, [yearlySavings, yearlyGoal]);
+
+  const ecoImpactScore = useMemo(() => {
+    if (!hasCompletedCalc) return 0;
+    const baseScore = Math.max(0, 100 - (breakdown.total / 3.5) * 45); // 3.5 is the ideal target
+    const bonus = streak * 2.5 + ecoPoints / 15;
+    return Math.min(100, Math.max(10, Math.round(baseScore + bonus)));
+  }, [hasCompletedCalc, breakdown.total, streak, ecoPoints]);
+
+  const activeReminder = useMemo(() => {
+    const idx = new Date().getDate() % REMINDERS.length;
+    return REMINDERS[idx];
+  }, []);
+
+  const comparisonChartData = useMemo(() => {
+    return {
+      labels: ['US Avg', 'Global Avg', 'Target Limit', 'You'],
+      datasets: [
+        {
+          label: 'CO₂ Footprint (Tons/Year)',
+          data: [16.0, 4.7, 3.5, breakdown.total],
+          backgroundColor: [
+            'rgba(239, 68, 68, 0.25)', // US avg: Red
+            'rgba(251, 191, 36, 0.25)', // Global avg: Yellow
+            'rgba(16, 185, 129, 0.25)', // Target: Emerald green
+            'rgba(16, 185, 129, 0.75)', // You: solid Emerald
+          ],
+          borderColor: ['#ef4444', '#fbbf24', '#10b981', '#10b981'],
+          borderWidth: 1.5,
+        },
+      ],
+    };
+  }, [breakdown.total]);
+
+  const comparisonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } },
+      },
+      y: {
+        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+        ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } },
+        title: {
+          display: true,
+          text: 'Tons CO₂e / Year',
+          color: '#64748b',
+          font: { family: 'Plus Jakarta Sans', size: 9 },
+        },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+    },
+  };
+
+  const handlePrintReport = () => {
+    window.print();
+  };
 
   // Statistics counters
   const activeQuestsCount = useMemo(() => {
@@ -396,350 +548,641 @@ const Dashboard: React.FC = () => {
   }, [hasCompletedCalc, breakdown]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-col gap-8"
-    >
-      {/* Overview stats grids */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Ring Projected annual footprint card */}
-        <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
-              {t('dashboard.annualFootprint')}
-            </h3>
-            <span className="px-2.5 py-1 bg-eco-green/10 text-eco-green rounded-full text-xs font-bold font-outfit">
-              {t('dashboard.target')}
-            </span>
+    <>
+      {/* Hidden print container for monthly sustainability reports */}
+      <div className="hidden print:flex flex-col gap-6 bg-slate-900 border border-green-500/30 p-8 rounded-2xl w-full min-h-screen text-white">
+        <div className="flex justify-between items-center border-b border-white/10 pb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold font-outfit tracking-wider text-green-400">
+              EcoTrace Report
+            </h1>
+            <p className="text-sm text-slate-400 mt-1">
+              Official Carbon Compass Performance Summary
+            </p>
           </div>
-
-          <div className="flex justify-center items-center my-6">
-            <div className="relative w-40 h-40 flex items-center justify-center">
-              <svg className="absolute transform -rotate-90 w-full h-full" viewBox="0 0 160 160">
-                <circle
-                  cx="80"
-                  cy="80"
-                  r={circleRadius}
-                  stroke="rgba(255,255,255,0.04)"
-                  strokeWidth="11"
-                  fill="transparent"
-                />
-                <circle
-                  cx="80"
-                  cy="80"
-                  r={circleRadius}
-                  stroke={ringColor}
-                  strokeWidth="11"
-                  fill="transparent"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  className="progress-ring__circle"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="flex flex-col items-center justify-center text-center">
-                <span className="text-3xl font-outfit font-black text-white leading-none">
-                  {hasCompletedCalc ? breakdown.total : '—'}
-                </span>
-                <span className="text-[10px] text-eco-muted font-medium mt-1">tons CO₂e / yr</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center text-xs text-eco-muted leading-relaxed">
-            {hasCompletedCalc ? t('dashboard.statusCalc') : t('dashboard.statusNoCalc')}
+          <div className="w-16 h-16 rounded-full border border-green-500/35 flex items-center justify-center text-green-400">
+            <Leaf className="w-8 h-8" />
           </div>
         </div>
 
-        {/* Action summaries subgrid */}
-        <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-          {/* Stat 1: Savings */}
-          <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-xl bg-eco-green/15 flex items-center justify-center border border-eco-green/25 shrink-0">
-              <Leaf className="w-6 h-6 text-eco-green" />
+        <div className="grid grid-cols-2 gap-8 my-4 border-b border-white/5 pb-6">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              Prepared For
+            </h3>
+            <p className="text-xl font-semibold text-white mt-1">{user?.name || 'Eco Citizen'}</p>
+            <p className="text-xs text-slate-400">{user?.email || 'eco@citizen.com'}</p>
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              Issue Date
+            </h3>
+            <p className="text-xl font-semibold text-white mt-1">
+              {new Date().toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+                day: 'numeric',
+              })}
+            </p>
+            <p className="text-xs text-slate-400">Monthly Audit Log</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4 my-6">
+          <div className="p-4 bg-slate-800/50 border border-white/5 rounded-xl text-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+              Carbon Score
+            </span>
+            <span className="text-2xl font-black text-white font-outfit">
+              {hasCompletedCalc ? breakdown.total : '—'}
+            </span>
+            <span className="text-[10px] text-slate-400 block mt-1">tons CO₂ / yr</span>
+          </div>
+
+          <div className="p-4 bg-slate-800/50 border border-white/5 rounded-xl text-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+              Eco Grade
+            </span>
+            <span className="text-2xl font-black text-green-400 font-outfit">
+              {gradeInfo.grade}
+            </span>
+            <span className="text-[10px] text-slate-400 block mt-1">{gradeInfo.desc}</span>
+          </div>
+
+          <div className="p-4 bg-slate-800/50 border border-white/5 rounded-xl text-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+              Avoided Carbon
+            </span>
+            <span className="text-2xl font-black text-green-400 font-outfit">
+              {totalSavings.toFixed(1)}
+            </span>
+            <span className="text-[10px] text-slate-400 block mt-1">kg CO₂e saved</span>
+          </div>
+
+          <div className="p-4 bg-slate-800/50 border border-white/5 rounded-xl text-center">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+              Eco Points
+            </span>
+            <span className="text-2xl font-black text-green-400 font-outfit">{ecoPoints}</span>
+            <span className="text-[10px] text-slate-400 block mt-1">pts accumulated</span>
+          </div>
+        </div>
+
+        <div className="my-6 border-b border-white/5 pb-6">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-3">
+            Carbon Footprint Breakdown
+          </h3>
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-white/10 text-slate-400">
+                <th className="py-2">Category</th>
+                <th className="py-2">Your Profile (Tons)</th>
+                <th className="py-2">Eco Target Limit (Tons)</th>
+                <th className="py-2">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-white/5">
+                <td className="py-2.5 font-medium">Transportation</td>
+                <td className="py-2.5">{breakdown.transport} t</td>
+                <td className="py-2.5">1.2 t</td>
+                <td className="py-2.5">
+                  {breakdown.transport <= 1.2 ? 'Compliant' : 'Above Target'}
+                </td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="py-2.5 font-medium">Home Energy Utilities</td>
+                <td className="py-2.5">{breakdown.energy} t</td>
+                <td className="py-2.5">1.0 t</td>
+                <td className="py-2.5">{breakdown.energy <= 1.0 ? 'Compliant' : 'Above Target'}</td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="py-2.5 font-medium">Dietary Sourcing</td>
+                <td className="py-2.5">{breakdown.diet} t</td>
+                <td className="py-2.5">0.8 t</td>
+                <td className="py-2.5">{breakdown.diet <= 0.8 ? 'Compliant' : 'Above Target'}</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 font-medium">Waste & Recycling</td>
+                <td className="py-2.5">{breakdown.waste} t</td>
+                <td className="py-2.5">0.5 t</td>
+                <td className="py-2.5">{breakdown.waste <= 0.5 ? 'Compliant' : 'Above Target'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="my-6 p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-green-400 mb-1">
+            Official Environmental Impact
+          </h4>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            By avoiding {totalSavings.toFixed(1)} kg of CO₂ emissions, you have offset the
+            equivalent of {treeOffset} mature trees absorbing carbon for a full year. Your Eco Grade
+            of {gradeInfo.grade} and current streak of {streak} days marks you as an active climate
+            steward.
+          </p>
+        </div>
+
+        <div className="mt-auto flex justify-between items-end border-t border-white/10 pt-6">
+          <div className="text-[10px] text-slate-400">
+            <p>EcoTrace Certification Service</p>
+            <p className="mt-1">Verification Code: ET-REPORT</p>
+          </div>
+          <div className="text-right">
+            <span className="inline-block border border-green-500/30 text-green-400 px-4 py-1.5 rounded text-xs font-bold uppercase tracking-widest">
+              Verified Sustainability Champion
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col gap-8 print:hidden"
+      >
+        {/* Top Action Row */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+          <div>
+            <h2 className="text-white font-bold font-outfit text-xl mb-1">Eco Dashboard</h2>
+            <p className="text-xs text-eco-muted leading-relaxed">
+              Monitor carbon footprint, active targets, daily savings impact, and generate reports.
+            </p>
+          </div>
+          <button
+            onClick={handlePrintReport}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold font-outfit rounded-xl transition-all shadow-md cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-eco-green" />
+            <span>{t('dashboard.downloadReport')}</span>
+          </button>
+        </div>
+
+        {/* Overview stats grids */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Ring Projected annual footprint card */}
+          <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col justify-between">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
+                {t('dashboard.annualFootprint')}
+              </h3>
+              <span className="px-2.5 py-1 bg-eco-green/10 text-eco-green rounded-full text-xs font-bold font-outfit">
+                {t('dashboard.target')}
+              </span>
             </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
-                {t('dashboard.totalSavings')}
-              </span>
-              <div className="text-xl font-bold font-outfit text-white mt-0.5">
-                {totalSavings.toFixed(1)} kg
+
+            <div className="flex justify-center items-center my-6">
+              <div className="relative w-40 h-40 flex items-center justify-center">
+                <svg className="absolute transform -rotate-90 w-full h-full" viewBox="0 0 160 160">
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r={circleRadius}
+                    stroke="rgba(255,255,255,0.04)"
+                    strokeWidth="11"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r={circleRadius}
+                    stroke={ringColor}
+                    strokeWidth="11"
+                    fill="transparent"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="progress-ring__circle"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="flex flex-col items-center justify-center text-center">
+                  <span className="text-3xl font-outfit font-black text-white leading-none">
+                    {hasCompletedCalc ? breakdown.total : '—'}
+                  </span>
+                  <span className="text-[10px] text-eco-muted font-medium mt-1">
+                    tons CO₂e / yr
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px] text-eco-muted mt-1 block">
-                {t('dashboard.savingsDesc')}
-              </span>
+            </div>
+
+            <div className="text-center text-xs text-eco-muted leading-relaxed">
+              {hasCompletedCalc ? t('dashboard.statusCalc') : t('dashboard.statusNoCalc')}
             </div>
           </div>
 
-          {/* Dynamic Sustainability Grade & Global Comparison */}
-          <div
-            className={`glass-card p-5.5 border flex gap-4 items-center transition-all ${gradeInfo.color}`}
-          >
-            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-              <Gauge className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
+          {/* Action summaries subgrid */}
+          <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
+            {/* Stat 1: Savings */}
+            <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
+              <div className="w-12 h-12 rounded-xl bg-eco-green/15 flex items-center justify-center border border-eco-green/25 shrink-0">
+                <Leaf className="w-6 h-6 text-eco-green" />
+              </div>
+              <div>
                 <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
-                  Eco Grade
+                  {t('dashboard.totalSavings')}
                 </span>
-                <span className="text-xs font-black px-1.5 py-0.2 bg-white/10 rounded font-outfit">
-                  {gradeInfo.grade}
+                <div className="text-xl font-bold font-outfit text-white mt-0.5">
+                  {totalSavings.toFixed(1)} kg
+                </div>
+                <span className="text-[10px] text-eco-muted mt-1 block">
+                  {t('dashboard.savingsDesc')}
                 </span>
               </div>
-              <div className="text-xs font-semibold text-white mt-1 leading-snug">
-                {gradeInfo.desc}
+            </div>
+
+            {/* Dynamic Sustainability Grade & Global Comparison */}
+            <div
+              className={`glass-card p-5.5 border flex gap-4 items-center transition-all ${gradeInfo.color}`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                <Gauge className="w-6 h-6" />
               </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
+                    Eco Grade
+                  </span>
+                  <span className="text-xs font-black px-1.5 py-0.2 bg-white/10 rounded font-outfit">
+                    {gradeInfo.grade}
+                  </span>
+                </div>
+                <div className="text-xs font-semibold text-white mt-1 leading-snug">
+                  {gradeInfo.desc}
+                </div>
+                {hasCompletedCalc && (
+                  <span className="text-[10px] text-eco-muted mt-1 block font-medium">
+                    {citizenComparison.efficient ? (
+                      <span className="text-eco-green flex items-center gap-0.5">
+                        <TrendingDown className="w-3.5 h-3.5" />
+                        <span>{citizenComparison.percent}% better than global avg (4.7t)</span>
+                      </span>
+                    ) : (
+                      <span className="text-amber-500 flex items-center gap-0.5">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        <span>{citizenComparison.percent}% above global avg (4.7t)</span>
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Stat 3: Quests */}
+            <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center border border-indigo-500/25 shrink-0">
+                <Flame className="w-6 h-6 text-indigo-400" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
+                  {t('dashboard.activeQuests')}
+                </span>
+                <div className="text-xl font-bold font-outfit text-white mt-0.5">
+                  {activeQuestsCount} / 4
+                </div>
+                <span className="text-[10px] text-eco-muted mt-1 block">
+                  {t('dashboard.questsDesc')}
+                </span>
+              </div>
+            </div>
+
+            {/* Stat 4: Tree offset */}
+            <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
+              <div className="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center border border-blue-500/25 shrink-0">
+                <Sprout className="w-6 h-6 text-blue-400" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
+                  {t('dashboard.treeOffset')}
+                </span>
+                <div className="text-xl font-bold font-outfit text-white mt-0.5">{treeOffset}</div>
+                <span className="text-[10px] text-eco-muted mt-1 block">
+                  {t('dashboard.treeDesc')}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Personalized Goals & Environmental Impact Section */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left Column: Goals & Reminders */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            {/* Goals Card */}
+            <div className="glass-card p-6 border border-white/5 flex flex-col gap-4">
+              <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase flex items-center gap-2">
+                <Sprout className="w-4 h-4 text-eco-green" />
+                <span>{t('quests.setGoals')}</span>
+              </h3>
+
+              <div className="flex flex-col gap-4">
+                {/* Monthly progress */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center text-[10px] font-semibold">
+                    <span className="text-eco-muted">Monthly Target ({monthlyGoal} kg)</span>
+                    <span className="text-eco-green font-bold font-outfit">
+                      {monthlySavings} / {monthlyGoal} kg ({monthlyProgress}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full bg-gradient-to-r from-eco-green to-emerald-400 rounded-full transition-all duration-500"
+                      style={{ width: `${monthlyProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Yearly progress */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center text-[10px] font-semibold">
+                    <span className="text-eco-muted">Yearly Target ({yearlyGoal} kg)</span>
+                    <span className="text-eco-green font-bold font-outfit">
+                      {yearlySavings} / {yearlyGoal} kg ({yearlyProgress}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
+                    <div
+                      className="h-full bg-gradient-to-r from-eco-green to-emerald-400 rounded-full transition-all duration-500"
+                      style={{ width: `${yearlyProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Smart Reminders Banner */}
+            <div className="glass-card p-6 border border-white/5 flex gap-3.5 items-start">
+              <div className="p-2.5 bg-eco-green/10 text-eco-green rounded-xl border border-eco-green/20 shrink-0">
+                <Calendar className="w-5 h-5 animate-bounce text-eco-green" />
+              </div>
+              <div>
+                <h4 className="text-white font-bold font-outfit text-xs mb-1">
+                  {t('dashboard.remindersTitle')}
+                </h4>
+                <p className="text-[11px] text-eco-muted leading-relaxed">{activeReminder.text}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Real-World Impact & Score */}
+          <div className="lg:col-span-2 glass-card p-6 border border-white/5 flex flex-col gap-4 justify-between">
+            <div className="flex justify-between items-center pb-2 border-b border-white/5">
+              <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase flex items-center gap-2">
+                <Leaf className="w-4 h-4 text-eco-green" />
+                <span>Real-World Environmental Impact</span>
+              </h3>
               {hasCompletedCalc && (
-                <span className="text-[10px] text-eco-muted mt-1 block font-medium">
-                  {citizenComparison.efficient ? (
-                    <span className="text-eco-green flex items-center gap-0.5">
-                      <TrendingDown className="w-3.5 h-3.5" />
-                      <span>{citizenComparison.percent}% better than global avg (4.7t)</span>
-                    </span>
-                  ) : (
-                    <span className="text-amber-500 flex items-center gap-0.5">
-                      <TrendingUp className="w-3.5 h-3.5" />
-                      <span>{citizenComparison.percent}% above global avg (4.7t)</span>
-                    </span>
-                  )}
+                <span className="px-2.5 py-1 bg-eco-green/10 border border-eco-green/25 text-eco-green rounded-lg text-[10px] font-bold font-outfit">
+                  Impact Score: {ecoImpactScore}/100
                 </span>
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 my-2">
+              {/* Impact Metric 1 */}
+              <div className="p-4 bg-white/3 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center">
+                <span className="text-[9px] uppercase tracking-wider font-extrabold text-eco-muted mb-1">
+                  Impact Score
+                </span>
+                <div className="text-2xl font-black font-outfit text-white leading-none my-1">
+                  {hasCompletedCalc ? `${ecoImpactScore}` : '—'}
+                </div>
+                <span className="text-[10px] text-eco-green font-medium">Environmental Rating</span>
+              </div>
+
+              {/* Impact Metric 2 */}
+              <div className="p-4 bg-white/3 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center">
+                <span className="text-[9px] uppercase tracking-wider font-extrabold text-eco-muted mb-1">
+                  Trees Equivalent
+                </span>
+                <div className="text-2xl font-black font-outfit text-white leading-none my-1">
+                  {treeOffset}
+                </div>
+                <span className="text-[10px] text-eco-green font-medium">Trees Saved</span>
+              </div>
+
+              {/* Impact Metric 3 */}
+              <div className="p-4 bg-white/3 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center">
+                <span className="text-[9px] uppercase tracking-wider font-extrabold text-eco-muted mb-1">
+                  Emissions vs Avg
+                </span>
+                <div className="text-2xl font-black font-outfit text-white leading-none my-1">
+                  {hasCompletedCalc
+                    ? `${citizenComparison.efficient ? '-' : '+'}${citizenComparison.percent}%`
+                    : '—'}
+                </div>
+                <span className="text-[10px] text-eco-green font-medium font-outfit">
+                  vs Global Average
+                </span>
+              </div>
+            </div>
+
+            {/* Comparison Bar Chart */}
+            <div className="h-44 relative mt-2">
+              <Bar data={comparisonChartData} options={comparisonChartOptions} />
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive Charts section */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Doughnut breakdown chart */}
+          <div className="glass-card p-6 border border-white/5 flex flex-col justify-between">
+            <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase mb-4">
+              {t('dashboard.emissionsBreakdown')}
+            </h3>
+            <div className="h-64 relative flex items-center justify-center">
+              {hasCompletedCalc ? (
+                <Doughnut data={doughnutData} options={doughnutOptions} />
+              ) : (
+                <div className="flex flex-col items-center text-center justify-center p-4">
+                  <PieChart className="w-12 h-12 text-eco-muted/30 mb-3" />
+                  <p className="text-xs text-eco-muted max-w-xs mb-4">
+                    {t('dashboard.chartPlaceholder')}
+                  </p>
+                  <button
+                    onClick={() => navigate('/calculator')}
+                    className="px-4 py-2 bg-eco-green hover:bg-eco-emerald text-white rounded-lg text-xs font-semibold font-outfit transition-all flex items-center gap-1.5"
+                  >
+                    <span>{t('dashboard.calcButton')}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Stat 3: Quests */}
-          <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center border border-indigo-500/25 shrink-0">
-              <Flame className="w-6 h-6 text-indigo-400" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
-                {t('dashboard.activeQuests')}
-              </span>
-              <div className="text-xl font-bold font-outfit text-white mt-0.5">
-                {activeQuestsCount} / 4
-              </div>
-              <span className="text-[10px] text-eco-muted mt-1 block">
-                {t('dashboard.questsDesc')}
-              </span>
-            </div>
-          </div>
-
-          {/* Stat 4: Tree offset */}
-          <div className="glass-card p-5.5 border border-white/5 flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center border border-blue-500/25 shrink-0">
-              <Sprout className="w-6 h-6 text-blue-400" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-eco-muted">
-                {t('dashboard.treeOffset')}
-              </span>
-              <div className="text-xl font-bold font-outfit text-white mt-0.5">{treeOffset}</div>
-              <span className="text-[10px] text-eco-muted mt-1 block">
-                {t('dashboard.treeDesc')}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Interactive Charts section */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Doughnut breakdown chart */}
-        <div className="glass-card p-6 border border-white/5 flex flex-col justify-between">
-          <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase mb-4">
-            {t('dashboard.emissionsBreakdown')}
-          </h3>
-          <div className="h-64 relative flex items-center justify-center">
-            {hasCompletedCalc ? (
-              <Doughnut data={doughnutData} options={doughnutOptions} />
-            ) : (
-              <div className="flex flex-col items-center text-center justify-center p-4">
-                <PieChart className="w-12 h-12 text-eco-muted/30 mb-3" />
-                <p className="text-xs text-eco-muted max-w-xs mb-4">
-                  {t('dashboard.chartPlaceholder')}
-                </p>
-                <button
-                  onClick={() => navigate('/calculator')}
-                  className="px-4 py-2 bg-eco-green hover:bg-eco-emerald text-white rounded-lg text-xs font-semibold font-outfit transition-all flex items-center gap-1.5"
-                >
-                  <span>{t('dashboard.calcButton')}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Line savings trend chart */}
-        <div className="glass-card p-6 border border-white/5 flex flex-col justify-between">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
-              {t('dashboard.savingsTrend')}
-            </h3>
-            {/* Filter buttons */}
-            <div className="flex bg-white/5 border border-white/10 rounded-lg p-0.5 text-[10px] font-semibold">
-              <button
-                onClick={() => setTimeFilter('7')}
-                className={`px-2.5 py-1 rounded-md transition-all ${
-                  timeFilter === '7'
-                    ? 'bg-eco-green text-white shadow'
-                    : 'text-eco-muted hover:text-white'
-                }`}
-              >
-                7 Days
-              </button>
-              <button
-                onClick={() => setTimeFilter('30')}
-                className={`px-2.5 py-1 rounded-md transition-all ${
-                  timeFilter === '30'
-                    ? 'bg-eco-green text-white shadow'
-                    : 'text-eco-muted hover:text-white'
-                }`}
-              >
-                30 Days
-              </button>
-            </div>
-          </div>
-          <div className="h-64 relative flex items-center justify-center">
-            {lineHasData || timeFilter === '30' ? (
-              <Line data={lineChartData} options={lineChartOptions} />
-            ) : (
-              <div className="flex flex-col items-center text-center justify-center p-4">
-                <TrendingUp className="w-12 h-12 text-eco-muted/30 mb-3" />
-                <p className="text-xs text-eco-muted max-w-xs mb-4">
-                  Log your eco-friendly choices in the Daily Tracker to see savings trends.
-                </p>
-                <button
-                  onClick={() => navigate('/tracker')}
-                  className="px-4 py-2 bg-eco-green hover:bg-eco-emerald text-white rounded-lg text-xs font-semibold font-outfit transition-all flex items-center gap-1.5"
-                >
-                  <span>{t('dashboard.logButton')}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Badges and Insights Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Unlocked Badges Panel */}
-        <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <div>
+          {/* Line savings trend chart */}
+          <div className="glass-card p-6 border border-white/5 flex flex-col justify-between">
+            <div className="flex justify-between items-center mb-4">
               <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
-                {t('dashboard.unlockedBadges')}
+                {t('dashboard.savingsTrend')}
               </h3>
-              <p className="text-[10px] text-eco-muted mt-0.5">{t('dashboard.badgesDesc')}</p>
+              {/* Filter buttons */}
+              <div className="flex bg-white/5 border border-white/10 rounded-lg p-0.5 text-[10px] font-semibold">
+                <button
+                  onClick={() => setTimeFilter('7')}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    timeFilter === '7'
+                      ? 'bg-eco-green text-white shadow'
+                      : 'text-eco-muted hover:text-white'
+                  }`}
+                >
+                  7 Days
+                </button>
+                <button
+                  onClick={() => setTimeFilter('30')}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    timeFilter === '30'
+                      ? 'bg-eco-green text-white shadow'
+                      : 'text-eco-muted hover:text-white'
+                  }`}
+                >
+                  30 Days
+                </button>
+              </div>
             </div>
-            <span className="px-2 py-0.5 bg-eco-green/10 text-eco-green border border-eco-green/20 rounded text-[10px] font-bold font-outfit">
-              {unlockedList.length} / {badges.length}
-            </span>
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center">
-            {unlockedList.length > 0 ? (
-              <div className="grid grid-cols-3 gap-3 my-2">
-                {unlockedList.slice(0, 5).map((badge) => (
-                  <div
-                    key={badge.id}
-                    title={badge.name}
-                    className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center group hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-eco-green/10 border border-eco-green/20 text-eco-green flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
-                      <BadgeIcon name={badge.icon} className="w-5 h-5 stroke-[1.8]" />
-                    </div>
-                    <span className="text-[9px] font-semibold text-white truncate w-full max-w-[64px]">
-                      {badge.name}
-                    </span>
-                  </div>
-                ))}
-                <div
-                  onClick={() => navigate('/challenges')}
-                  className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center cursor-pointer hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
-                >
-                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-eco-muted flex items-center justify-center mb-1">
-                    <Award className="w-5 h-5 stroke-[1.8]" />
-                  </div>
-                  <span className="text-[9px] font-bold text-eco-green">View All</span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center py-6">
-                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-eco-muted/30 flex items-center justify-center mb-3">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <p className="text-xs text-eco-muted max-w-[200px]">
-                  Calculate your footprint and complete quests to earn badges.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* AI Insights and recommendations panel */}
-        <div className="glass-card p-6 border border-white/5 lg:col-span-2 flex flex-col justify-between">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-eco-green animate-pulse" />
-            <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
-              {t('dashboard.ecoInsights')}
-            </h3>
-          </div>
-
-          <div className="flex flex-col gap-4 flex-1 justify-center">
-            {hasCompletedCalc ? (
-              recommendations.slice(0, 2).map((rec, i) => (
-                <div
-                  key={i}
-                  className="p-3.5 bg-eco-forest/20 border border-white/5 hover:border-white/10 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[9px] px-1.5 py-0.2 bg-white/5 rounded border border-white/10 font-bold uppercase tracking-wider text-eco-muted">
-                        {rec.cat}
-                      </span>
-                      <span className="text-[9px] font-bold text-eco-green uppercase tracking-wide">
-                        {rec.impact}
-                      </span>
-                    </div>
-                    <h4 className="text-white font-bold text-xs font-outfit mb-0.5">{rec.title}</h4>
-                    <p className="text-[11px] text-eco-muted leading-relaxed">{rec.desc}</p>
-                  </div>
+            <div className="h-64 relative flex items-center justify-center">
+              {lineHasData || timeFilter === '30' ? (
+                <Line data={lineChartData} options={lineChartOptions} />
+              ) : (
+                <div className="flex flex-col items-center text-center justify-center p-4">
+                  <TrendingUp className="w-12 h-12 text-eco-muted/30 mb-3" />
+                  <p className="text-xs text-eco-muted max-w-xs mb-4">
+                    Log your eco-friendly choices in the Daily Tracker to see savings trends.
+                  </p>
                   <button
-                    onClick={() =>
-                      navigate(
-                        rec.cat === 'Transportation'
-                          ? '/calculator'
-                          : rec.cat === 'Home Energy'
-                            ? '/calculator'
-                            : '/tracker'
-                      )
-                    }
-                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-[11px] font-semibold font-outfit transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                    onClick={() => navigate('/tracker')}
+                    className="px-4 py-2 bg-eco-green hover:bg-eco-emerald text-white rounded-lg text-xs font-semibold font-outfit transition-all flex items-center gap-1.5"
                   >
-                    <span>Configure</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <span>{t('dashboard.logButton')}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              ))
-            ) : (
-              <div className="p-4 text-center text-xs text-eco-muted leading-relaxed flex flex-col items-center justify-center">
-                <Sparkles className="w-8 h-8 text-eco-muted/30 mb-2" />
-                <span>
-                  Please complete the Carbon Footprint Calculator to unlock smart recommendations
-                  customized for your metrics.
-                </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+
+        {/* Badges and Insights Grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Unlocked Badges Panel */}
+          <div className="glass-card p-6 border border-white/5 lg:col-span-1 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
+                  {t('dashboard.unlockedBadges')}
+                </h3>
+                <p className="text-[10px] text-eco-muted mt-0.5">{t('dashboard.badgesDesc')}</p>
+              </div>
+              <span className="px-2 py-0.5 bg-eco-green/10 text-eco-green border border-eco-green/20 rounded text-[10px] font-bold font-outfit">
+                {unlockedList.length} / {badges.length}
+              </span>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center">
+              {unlockedList.length > 0 ? (
+                <div className="grid grid-cols-3 gap-3 my-2">
+                  {unlockedList.slice(0, 5).map((badge) => (
+                    <div
+                      key={badge.id}
+                      title={badge.name}
+                      className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center group hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-eco-green/10 border border-eco-green/20 text-eco-green flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                        <BadgeIcon name={badge.icon} className="w-5 h-5 stroke-[1.8]" />
+                      </div>
+                      <span className="text-[9px] font-semibold text-white truncate w-full max-w-[64px]">
+                        {badge.name}
+                      </span>
+                    </div>
+                  ))}
+                  <div
+                    onClick={() => navigate('/challenges')}
+                    className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/3 border border-white/5 text-center cursor-pointer hover:bg-white/5 hover:border-eco-green/30 transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-eco-muted flex items-center justify-center mb-1">
+                      <Award className="w-5 h-5 stroke-[1.8]" />
+                    </div>
+                    <span className="text-[9px] font-bold text-eco-green">View All</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-6">
+                  <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-eco-muted/30 flex items-center justify-center mb-3">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs text-eco-muted max-w-[200px]">
+                    Calculate your footprint and complete quests to earn badges.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* AI Insights and recommendations panel */}
+          <div className="glass-card p-6 border border-white/5 lg:col-span-2 flex flex-col justify-between">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-eco-green animate-pulse" />
+              <h3 className="text-white font-bold font-outfit text-sm tracking-wider uppercase">
+                {t('dashboard.ecoInsights')}
+              </h3>
+            </div>
+
+            <div className="flex flex-col gap-4 flex-1 justify-center">
+              {hasCompletedCalc ? (
+                recommendations.slice(0, 2).map((rec, i) => (
+                  <div
+                    key={i}
+                    className="p-3.5 bg-eco-forest/20 border border-white/5 hover:border-white/10 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[9px] px-1.5 py-0.2 bg-white/5 rounded border border-white/10 font-bold uppercase tracking-wider text-eco-muted">
+                          {rec.cat}
+                        </span>
+                        <span className="text-[9px] font-bold text-eco-green uppercase tracking-wide">
+                          {rec.impact}
+                        </span>
+                      </div>
+                      <h4 className="text-white font-bold text-xs font-outfit mb-0.5">
+                        {rec.title}
+                      </h4>
+                      <p className="text-[11px] text-eco-muted leading-relaxed">{rec.desc}</p>
+                    </div>
+                    <button
+                      onClick={() =>
+                        navigate(
+                          rec.cat === 'Transportation'
+                            ? '/calculator'
+                            : rec.cat === 'Home Energy'
+                              ? '/calculator'
+                              : '/tracker'
+                        )
+                      }
+                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-[11px] font-semibold font-outfit transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+                    >
+                      <span>Configure</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-xs text-eco-muted leading-relaxed flex flex-col items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-eco-muted/30 mb-2" />
+                  <span>
+                    Please complete the Carbon Footprint Calculator to unlock smart recommendations
+                    customized for your metrics.
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 };
 

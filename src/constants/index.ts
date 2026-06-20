@@ -57,6 +57,34 @@ export const BADGES: Badge[] = [
     icon: 'sprout',
     category: 'General',
   },
+  {
+    id: 'green-beginner',
+    name: 'Green Beginner',
+    desc: 'Logged your first sustainable daily action.',
+    icon: 'leaf',
+    category: 'General',
+  },
+  {
+    id: 'eco-warrior',
+    name: 'Eco Warrior',
+    desc: 'Maintained a 3-day logging streak or completed 3 challenges.',
+    icon: 'shield',
+    category: 'General',
+  },
+  {
+    id: 'carbon-saver',
+    name: 'Carbon Saver',
+    desc: 'Reached a total of 20 kg in carbon savings.',
+    icon: 'award',
+    category: 'General',
+  },
+  {
+    id: 'planet-protector',
+    name: 'Planet Protector',
+    desc: 'Reached a total of 100 kg in carbon savings.',
+    icon: 'globe',
+    category: 'General',
+  },
 ];
 
 export const INITIAL_CALCULATOR: CalculatorState = {

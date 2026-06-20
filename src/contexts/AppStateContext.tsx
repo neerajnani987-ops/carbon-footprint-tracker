@@ -20,6 +20,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [hasCompletedCalc, setHasCompletedCalc] = useState(false);
   const [unlockedBadges, setUnlockedBadges] = useState<Record<string, string>>({});
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(50);
+  const [yearlyGoal, setYearlyGoal] = useState<number>(600);
+  const [ecoPoints, setEcoPoints] = useState<number>(0);
 
   // Load user-specific state on startup or user change
   useEffect(() => {
@@ -33,6 +36,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setLastLoggedDate(null);
         setHasCompletedCalc(false);
         setUnlockedBadges({});
+        setMonthlyGoal(50);
+        setYearlyGoal(600);
+        setEcoPoints(0);
         return;
       }
 
@@ -42,11 +48,14 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (data) {
           if (data.calculator) setCalculator(data.calculator);
           if (data.dailyLogs) setDailyLogs(data.dailyLogs);
-          if (data.totalSavings) setTotalSavings(data.totalSavings);
-          if (data.streak) setStreak(data.streak);
+          if (data.totalSavings !== undefined) setTotalSavings(data.totalSavings);
+          if (data.streak !== undefined) setStreak(data.streak);
           if (data.lastLoggedDate) setLastLoggedDate(data.lastLoggedDate);
-          if (data.hasCompletedCalc) setHasCompletedCalc(data.hasCompletedCalc);
+          if (data.hasCompletedCalc !== undefined) setHasCompletedCalc(data.hasCompletedCalc);
           if (data.unlockedBadges) setUnlockedBadges(data.unlockedBadges);
+          if (data.monthlyGoal !== undefined) setMonthlyGoal(data.monthlyGoal);
+          if (data.yearlyGoal !== undefined) setYearlyGoal(data.yearlyGoal);
+          if (data.ecoPoints !== undefined) setEcoPoints(data.ecoPoints);
         } else {
           // No remote database document exists yet, try migrating local un-authenticated items
           const saved = localStorage.getItem('ecotrace_app_state');
@@ -54,11 +63,14 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             const parsed = JSON.parse(saved);
             if (parsed.calculator) setCalculator(parsed.calculator);
             if (parsed.dailyLogs) setDailyLogs(parsed.dailyLogs);
-            if (parsed.totalSavings) setTotalSavings(parsed.totalSavings);
-            if (parsed.streak) setStreak(parsed.streak);
+            if (parsed.totalSavings !== undefined) setTotalSavings(parsed.totalSavings);
+            if (parsed.streak !== undefined) setStreak(parsed.streak);
             if (parsed.lastLoggedDate) setLastLoggedDate(parsed.lastLoggedDate);
-            if (parsed.hasCompletedCalc) setHasCompletedCalc(parsed.hasCompletedCalc);
+            if (parsed.hasCompletedCalc !== undefined) setHasCompletedCalc(parsed.hasCompletedCalc);
             if (parsed.unlockedBadges) setUnlockedBadges(parsed.unlockedBadges);
+            if (parsed.monthlyGoal !== undefined) setMonthlyGoal(parsed.monthlyGoal);
+            if (parsed.yearlyGoal !== undefined) setYearlyGoal(parsed.yearlyGoal);
+            if (parsed.ecoPoints !== undefined) setEcoPoints(parsed.ecoPoints);
 
             // Auto sync this migrated state to user db document
             await saveUserData(userId, parsed);
@@ -71,6 +83,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             setLastLoggedDate(null);
             setHasCompletedCalc(false);
             setUnlockedBadges({});
+            setMonthlyGoal(50);
+            setYearlyGoal(600);
+            setEcoPoints(0);
           }
         }
       } catch (e) {
@@ -94,6 +109,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         lastLoggedDate,
         hasCompletedCalc,
         unlockedBadges,
+        monthlyGoal,
+        yearlyGoal,
+        ecoPoints,
         ...updates,
       };
       await saveUserData(userId, currentData);
@@ -224,6 +242,26 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     };
 
+    // Badge Check: Green Beginner (first log entry with at least one action)
+    if (actionIds.length > 0) {
+      checkAndUnlock('green-beginner');
+    }
+
+    // Badge Check: Eco Warrior (Streak of 3 or more days)
+    if (nextStreak >= 3) {
+      checkAndUnlock('eco-warrior');
+    }
+
+    // Badge Check: Carbon Saver (Savings >= 20 kg)
+    if (newTotalSavings >= 20) {
+      checkAndUnlock('carbon-saver');
+    }
+
+    // Badge Check: Planet Protector (Savings >= 100 kg)
+    if (newTotalSavings >= 100) {
+      checkAndUnlock('planet-protector');
+    }
+
     // Badge Check: Commute logs
     let transportCount = 0;
     Object.values(updatedLogs).forEach((log) => {
@@ -263,10 +301,24 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       checkAndUnlock('tree-planter');
     }
 
+    // Award Eco Points
+    let earnedPoints = 0;
+    if (actionIds.length > 0) {
+      earnedPoints += 10; // 10 points for submission
+    }
+    const prevBadgeCount = Object.keys(unlockedBadges).length;
+    const newBadgeCount = Object.keys(newUnlockedBadges).length;
+    if (newBadgeCount > prevBadgeCount) {
+      earnedPoints += (newBadgeCount - prevBadgeCount) * 50; // 50 points per badge
+    }
+
+    const nextEcoPoints = ecoPoints + earnedPoints;
+
     setStreak(nextStreak);
     setLastLoggedDate(todayStr);
     setTotalSavings(newTotalSavings);
     setDailyLogs(updatedLogs);
+    setEcoPoints(nextEcoPoints);
     if (unlockedAny) {
       setUnlockedBadges(newUnlockedBadges);
     }
@@ -277,6 +329,21 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       streak: nextStreak,
       lastLoggedDate: todayStr,
       unlockedBadges: newUnlockedBadges,
+      ecoPoints: nextEcoPoints,
+    });
+  };
+
+  const updateGoals = (monthly: number, yearly: number) => {
+    setMonthlyGoal(monthly);
+    setYearlyGoal(yearly);
+    syncState({ monthlyGoal: monthly, yearlyGoal: yearly });
+  };
+
+  const addEcoPoints = (points: number) => {
+    setEcoPoints((prev) => {
+      const next = prev + points;
+      syncState({ ecoPoints: next });
+      return next;
     });
   };
 
@@ -347,6 +414,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toasts,
         badges: BADGES,
         quests: getQuests(),
+        monthlyGoal,
+        yearlyGoal,
+        ecoPoints,
+        updateGoals,
+        addEcoPoints,
         updateCalculator,
         saveCalculatorResults,
         submitDailyLog,

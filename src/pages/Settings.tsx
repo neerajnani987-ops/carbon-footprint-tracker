@@ -3,6 +3,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useAppState } from '../hooks/useAppState';
 import { User, Globe, Sun, Moon, Bell, Save } from 'lucide-react';
+import { sanitizeText } from '../utils';
 
 const Settings: React.FC = () => {
   const { t, language, setLanguage } = useLanguage();
@@ -13,13 +14,18 @@ const Settings: React.FC = () => {
   const [email, setEmail] = useState(user?.email || 'eco@citizen.com');
   const [langVal, setLangVal] = useState<'en' | 'te'>(language);
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [dailyReminders, setDailyReminders] = useState(true);
+  const [weeklyDigests, setWeeklyDigests] = useState(true);
+  const [smartReminders, setSmartReminders] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+
+    const sanitizedName = sanitizeText(name);
+    const sanitizedEmail = sanitizeText(email);
+    setName(sanitizedName);
+    setEmail(sanitizedEmail);
 
     // Save language context
     setLanguage(langVal);
@@ -165,7 +171,7 @@ const Settings: React.FC = () => {
         <div className="flex flex-col gap-4.5">
           <label className="flex items-center justify-between gap-4 cursor-pointer select-none">
             <div>
-              <div className="text-xs font-semibold text-white">Email Digests</div>
+              <div className="text-xs font-semibold text-white">{t('settings.weeklyDigests')}</div>
               <p className="text-[10px] text-eco-muted leading-relaxed mt-0.5">
                 Receive weekly statistics summary digests and eco tip logs.
               </p>
@@ -173,8 +179,8 @@ const Settings: React.FC = () => {
             <div className="relative">
               <input
                 type="checkbox"
-                checked={emailAlerts}
-                onChange={() => setEmailAlerts(!emailAlerts)}
+                checked={weeklyDigests}
+                onChange={() => setWeeklyDigests(!weeklyDigests)}
                 className="sr-only peer"
               />
               <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-eco-muted peer-checked:after:bg-white after:border-none after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-eco-green"></div>
@@ -185,7 +191,7 @@ const Settings: React.FC = () => {
 
           <label className="flex items-center justify-between gap-4 cursor-pointer select-none">
             <div>
-              <div className="text-xs font-semibold text-white">Daily Logging Reminders</div>
+              <div className="text-xs font-semibold text-white">{t('settings.ecoReminders')}</div>
               <p className="text-[10px] text-eco-muted leading-relaxed mt-0.5">
                 Get push notifications to log daily habits and maintain your streak.
               </p>
@@ -193,8 +199,8 @@ const Settings: React.FC = () => {
             <div className="relative">
               <input
                 type="checkbox"
-                checked={dailyReminders}
-                onChange={() => setDailyReminders(!dailyReminders)}
+                checked={smartReminders}
+                onChange={() => setSmartReminders(!smartReminders)}
                 className="sr-only peer"
               />
               <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-eco-muted peer-checked:after:bg-white after:border-none after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-eco-green"></div>

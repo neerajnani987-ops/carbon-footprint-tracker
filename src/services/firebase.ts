@@ -47,7 +47,6 @@ export const reinitializeFirebaseForTest = (apiKey: string) => {
   googleProvider = auth ? new GoogleAuthProvider() : null;
 };
 
-
 /**
  * Firestore CRUD helpers with safe LocalStorage fallbacks.
  * This guarantees strict data protection and zero network errors in environments without active keys.

@@ -73,7 +73,7 @@ describe('Dashboard Page UI, Grades & Recommendations Coverage', () => {
     renderDashboard();
 
     await waitFor(() => {
-      expect(screen.getByText('A+')).toBeInTheDocument();
+      expect(screen.getAllByText('A+')[0]).toBeInTheDocument();
       expect(screen.getByText(/Maintain Great Habits/i)).toBeInTheDocument();
     });
   });
@@ -112,7 +112,9 @@ describe('Dashboard Page UI, Grades & Recommendations Coverage', () => {
 
     await waitFor(() => {
       // The high emissions should trigger high footprint grade (e.g. D+, D, or D-)
-      expect(screen.getByText(/Critical footprint|Severe environmental/i)).toBeInTheDocument();
+      expect(
+        screen.getAllByText(/Critical footprint|Severe environmental/i)[0]
+      ).toBeInTheDocument();
 
       // It should render specific recommendations
       expect(screen.getByText(/Optimize Commutes/i)).toBeInTheDocument();

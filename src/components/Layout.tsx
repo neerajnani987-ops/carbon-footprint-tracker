@@ -28,7 +28,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const { t, language, setLanguage } = useLanguage();
-  const { streak, toasts, dismissToast } = useAppState();
+  const { streak, toasts, dismissToast, ecoPoints } = useAppState();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -145,13 +145,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3 px-4 py-3 bg-eco-forest/35 border border-white/5 rounded-xl">
-                  <Flame className="w-5 h-5 text-amber-500 animate-pulse" />
-                  <div>
-                    <div className="text-white font-bold font-outfit">
-                      {streak} {t('settings.save')}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 px-3 py-2.5 bg-eco-forest/35 border border-white/5 rounded-xl">
+                    <Flame className="w-4 h-4 text-amber-500 animate-pulse shrink-0" />
+                    <div>
+                      <div className="text-white font-bold text-xs font-outfit">{streak}</div>
+                      <div className="text-[10px] text-eco-muted font-medium">Streak</div>
                     </div>
-                    <div className="text-xs text-eco-muted">Day Streak</div>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2.5 bg-eco-forest/35 border border-white/5 rounded-xl">
+                    <Award className="w-4 h-4 text-eco-green animate-pulse shrink-0" />
+                    <div>
+                      <div className="text-white font-bold text-xs font-outfit">{ecoPoints}</div>
+                      <div className="text-[10px] text-eco-muted font-medium">Points</div>
+                    </div>
                   </div>
                 </div>
 
@@ -211,11 +218,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 px-4 py-3 bg-eco-forest/40 border border-white/5 rounded-xl">
-            <Flame className="w-6 h-6 text-amber-500 animate-pulse" />
-            <div>
-              <div className="text-white font-bold text-lg font-outfit leading-none">{streak}</div>
-              <div className="text-[11px] text-eco-muted font-medium mt-1">Day Streak</div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-eco-forest/40 border border-white/5 rounded-xl">
+              <Flame className="w-5 h-5 text-amber-500 animate-pulse shrink-0" />
+              <div>
+                <div className="text-white font-bold text-sm font-outfit leading-none">
+                  {streak}
+                </div>
+                <div className="text-[10px] text-eco-muted font-medium mt-1">Streak</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-eco-forest/40 border border-white/5 rounded-xl">
+              <Award className="w-5 h-5 text-eco-green animate-pulse shrink-0" />
+              <div>
+                <div className="text-white font-bold text-sm font-outfit leading-none">
+                  {ecoPoints}
+                </div>
+                <div className="text-[10px] text-eco-muted font-medium mt-1">Points</div>
+              </div>
             </div>
           </div>
 
@@ -267,6 +287,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Globe className="w-3.5 h-3.5" />
               <span>{language === 'en' ? 'Telugu' : 'English'}</span>
             </button>
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-eco-green/10 text-eco-green border border-eco-green/20 rounded-lg text-xs font-semibold font-outfit">
+              <Award className="w-3.5 h-3.5" />
+              <span>{ecoPoints} pts</span>
+            </div>
 
             <button
               aria-label="View notifications"

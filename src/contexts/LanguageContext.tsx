@@ -76,7 +76,26 @@ type TranslationKeys =
   | 'assistant.title'
   | 'assistant.subtitle'
   | 'assistant.placeholder'
-  | 'assistant.send';
+  | 'assistant.send'
+  | 'dashboard.monthlyGoal'
+  | 'dashboard.yearlyGoal'
+  | 'dashboard.ecoPoints'
+  | 'dashboard.downloadReport'
+  | 'dashboard.sustainabilityGrade'
+  | 'dashboard.impactScore'
+  | 'dashboard.nationalAvg'
+  | 'dashboard.remindersTitle'
+  | 'quests.setGoals'
+  | 'quests.monthlyLabel'
+  | 'quests.yearlyLabel'
+  | 'quests.saveGoals'
+  | 'quests.dailyChallenges'
+  | 'quests.weeklyChallenges'
+  | 'quests.monthlyChallenges'
+  | 'quests.claimPoints'
+  | 'quests.completed'
+  | 'settings.ecoReminders'
+  | 'settings.weeklyDigests';
 
 const translations: Record<Language, Record<TranslationKeys, string>> = {
   en: {
@@ -159,6 +178,25 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'assistant.subtitle': 'Eco Assistant powered by AI',
     'assistant.placeholder': 'Ask me anything about reducing your carbon footprint...',
     'assistant.send': 'Send',
+    'dashboard.monthlyGoal': 'Monthly CO₂ Savings Goal',
+    'dashboard.yearlyGoal': 'Yearly CO₂ Savings Goal',
+    'dashboard.ecoPoints': 'Sustainability Points',
+    'dashboard.downloadReport': 'Download Monthly Report',
+    'dashboard.sustainabilityGrade': 'Sustainability Grade',
+    'dashboard.impactScore': 'Eco Impact Score',
+    'dashboard.nationalAvg': 'National Average (US)',
+    'dashboard.remindersTitle': 'Eco Reminder',
+    'quests.setGoals': 'Personalized Eco Goals',
+    'quests.monthlyLabel': 'Monthly CO₂ Reduction Goal (kg)',
+    'quests.yearlyLabel': 'Yearly CO₂ Reduction Goal (kg)',
+    'quests.saveGoals': 'Save Goals',
+    'quests.dailyChallenges': 'Daily Challenges',
+    'quests.weeklyChallenges': 'Weekly Challenges',
+    'quests.monthlyChallenges': 'Monthly Challenges',
+    'quests.claimPoints': 'Claim Points',
+    'quests.completed': 'Completed',
+    'settings.ecoReminders': 'Smart Eco Reminders',
+    'settings.weeklyDigests': 'Weekly Performance Digests',
   },
   te: {
     'app.title': 'EcoTrace (ఈకోట్రేస్)',
@@ -241,6 +279,25 @@ const translations: Record<Language, Record<TranslationKeys, string>> = {
     'assistant.subtitle': 'AI సహాయంతో పనిచేసే పర్యావరణ సహాయకుడు',
     'assistant.placeholder': 'కార్బన్ ఫుట్‌ప్రింట్‌ను తగ్గించడం గురించి నన్ను ఏదైనా అడగండి...',
     'assistant.send': 'పంపండి',
+    'dashboard.monthlyGoal': 'నెలవారీ ఆదా లక్ష్యం',
+    'dashboard.yearlyGoal': 'వార్షిక ఆదా లక్ష్యం',
+    'dashboard.ecoPoints': 'పర్యావరణ పాయింట్లు',
+    'dashboard.downloadReport': 'నివేదికను డౌన్‌లోడ్ చేయి',
+    'dashboard.sustainabilityGrade': 'పర్యావరణ గ్రేడ్',
+    'dashboard.impactScore': 'పర్యావరణ ప్రభావం స్కోరు',
+    'dashboard.nationalAvg': 'జాతీయ సగటు (US)',
+    'dashboard.remindersTitle': 'పర్యావరణ రిమైండర్',
+    'quests.setGoals': 'వ్యక్తిగతీకరించిన పర్యావరణ లక్ష్యాలు',
+    'quests.monthlyLabel': 'నెలవారీ CO₂ తగ్గింపు లక్ష్యం (kg)',
+    'quests.yearlyLabel': 'వార్షిక CO₂ తగ్గింపు లక్ష్యం (kg)',
+    'quests.saveGoals': 'లక్ష్యాలను సేవ్ చేయి',
+    'quests.dailyChallenges': 'రోజువారీ సవాళ్లు',
+    'quests.weeklyChallenges': 'వారపు సవాళ్లు',
+    'quests.monthlyChallenges': 'నెలవారీ సవాళ్లు',
+    'quests.claimPoints': 'పాయింట్లను క్లెయిమ్ చేయి',
+    'quests.completed': 'పూర్తయింది',
+    'settings.ecoReminders': 'పర్యావరణ అలర్ట్ రిమైండర్లు',
+    'settings.weeklyDigests': 'వారపు నివేదికలు',
   },
 };
 

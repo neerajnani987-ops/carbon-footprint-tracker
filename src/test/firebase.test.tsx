@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as firestore from 'firebase/firestore';
+import { AppStateData } from '../types';
 
 // Mock Firebase SDKs to prevent actual connections
 vi.mock('firebase/app', () => ({
@@ -43,7 +44,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
       dailyLogs: {},
       unlockedBadges: {},
     };
-    const saved = await saveUserData('local-user', data as any);
+    const saved = await saveUserData('local-user', data as unknown as AppStateData);
     expect(saved).toBe(true);
 
     const loaded = await getUserData('local-user');
@@ -72,7 +73,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
       dailyLogs: {},
       unlockedBadges: {},
     };
-    const saved = await saveUserData('cloud-user', data as any);
+    const saved = await saveUserData('cloud-user', data as unknown as AppStateData);
     expect(saved).toBe(true);
     expect(firestore.setDoc).toHaveBeenCalled();
 
@@ -80,7 +81,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
     vi.mocked(firestore.getDoc).mockResolvedValueOnce({
       exists: () => true,
       data: () => ({ totalSavings: 25.0, streak: 5 }),
-    } as any);
+    } as unknown as firestore.DocumentSnapshot);
 
     const loaded = await getUserData('cloud-user');
     expect(loaded).not.toBeNull();
@@ -95,7 +96,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
 
     vi.mocked(firestore.getDoc).mockResolvedValueOnce({
       exists: () => false,
-    } as any);
+    } as unknown as firestore.DocumentSnapshot);
 
     const loaded = await getUserData('missing-user');
     expect(loaded).toBeNull();
@@ -111,7 +112,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
     vi.mocked(firestore.setDoc).mockRejectedValueOnce(err);
 
     // Suppress console.error in vitest output for expected thrown errors
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const data = {
       totalSavings: 0,
@@ -120,8 +121,10 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
       dailyLogs: {},
       unlockedBadges: {},
     };
-    
-    await expect(saveUserData('denied-user', data as any)).rejects.toThrow('Permission Denied');
+
+    await expect(saveUserData('denied-user', data as unknown as AppStateData)).rejects.toThrow(
+      'Permission Denied'
+    );
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
@@ -135,7 +138,7 @@ describe('Firebase Service Wrapper & Fallbacks', () => {
     const err = new Error('Quota Exceeded');
     vi.mocked(firestore.getDoc).mockRejectedValueOnce(err);
 
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await expect(getUserData('denied-user')).rejects.toThrow('Quota Exceeded');
     expect(spy).toHaveBeenCalled();
